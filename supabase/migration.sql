@@ -96,6 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_internship_targets_internship ON internship_targe
 
 -- ============================================================
 -- 2. ROW LEVEL SECURITY (RLS)
+-- (DROP POLICY IF EXISTS membuat skrip aman dijalankan ulang)
 -- ============================================================
 
 -- Data referensi (read-only untuk semua authenticated users)
@@ -105,18 +106,23 @@ ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE internships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE internship_targets ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Semua user bisa baca specializations" ON specializations;
 CREATE POLICY "Semua user bisa baca specializations"
   ON specializations FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Semua user bisa baca competency_categories" ON competency_categories;
 CREATE POLICY "Semua user bisa baca competency_categories"
   ON competency_categories FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Semua user bisa baca courses" ON courses;
 CREATE POLICY "Semua user bisa baca courses"
   ON courses FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Semua user bisa baca internships" ON internships;
 CREATE POLICY "Semua user bisa baca internships"
   ON internships FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Semua user bisa baca internship_targets" ON internship_targets;
 CREATE POLICY "Semua user bisa baca internship_targets"
   ON internship_targets FOR SELECT TO anon, authenticated USING (true);
 
@@ -125,14 +131,17 @@ ALTER TABLE student_assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assessment_details ENABLE ROW LEVEL SECURITY;
 ALTER TABLE recommendation_results ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "User bisa baca assessment sendiri" ON student_assessments;
 CREATE POLICY "User bisa baca assessment sendiri"
   ON student_assessments FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "User bisa insert assessment sendiri" ON student_assessments;
 CREATE POLICY "User bisa insert assessment sendiri"
   ON student_assessments FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "User bisa baca detail assessment sendiri" ON assessment_details;
 CREATE POLICY "User bisa baca detail assessment sendiri"
   ON assessment_details FOR SELECT TO authenticated
   USING (
@@ -143,6 +152,7 @@ CREATE POLICY "User bisa baca detail assessment sendiri"
     )
   );
 
+DROP POLICY IF EXISTS "User bisa insert detail assessment sendiri" ON assessment_details;
 CREATE POLICY "User bisa insert detail assessment sendiri"
   ON assessment_details FOR INSERT TO authenticated
   WITH CHECK (
@@ -153,6 +163,7 @@ CREATE POLICY "User bisa insert detail assessment sendiri"
     )
   );
 
+DROP POLICY IF EXISTS "User bisa baca rekomendasi sendiri" ON recommendation_results;
 CREATE POLICY "User bisa baca rekomendasi sendiri"
   ON recommendation_results FOR SELECT TO authenticated
   USING (
@@ -163,6 +174,7 @@ CREATE POLICY "User bisa baca rekomendasi sendiri"
     )
   );
 
+DROP POLICY IF EXISTS "User bisa insert rekomendasi sendiri" ON recommendation_results;
 CREATE POLICY "User bisa insert rekomendasi sendiri"
   ON recommendation_results FOR INSERT TO authenticated
   WITH CHECK (

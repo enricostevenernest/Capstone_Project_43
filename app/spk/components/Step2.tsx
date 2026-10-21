@@ -1,52 +1,105 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Label, Select } from "@/components/ui/input";
-import { GraduationCap } from "lucide-react";
+import { Select } from "@/components/ui/input";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { gradeOptions, gradeToScale, type GradeLetter } from "@/lib/data";
-export function Step2({ categories, coursesForSpec, grades, setGrades, academicScores, onPrev, onNext, canNext }:{
-  categories:{id:string; name:string; shortName:string}[];
-  coursesForSpec:{id:string; competency_category_id:string; code:string; name:string}[];
-  grades:Record<string,GradeLetter>;
-  setGrades:(fn:(p:Record<string,GradeLetter>)=>Record<string,GradeLetter>)=>void;
-  academicScores:Record<string,number>;
-  onPrev:()=>void; onNext:()=>void; canNext:boolean;
-}){
+import { formatNumber } from "@/lib/utils";
+
+export function Step2({
+  categories,
+  coursesForSpec,
+  grades,
+  setGrades,
+  academicScores,
+  onPrev,
+  onNext,
+  canNext,
+}: {
+  categories: { id: string; name: string; shortName: string }[];
+  coursesForSpec: { id: string; competency_category_id: string; code: string; name: string }[];
+  grades: Record<string, GradeLetter>;
+  setGrades: (fn: (p: Record<string, GradeLetter>) => Record<string, GradeLetter>) => void;
+  academicScores: Record<string, number>;
+  onPrev: () => void;
+  onNext: () => void;
+  canNext: boolean;
+}) {
+  const filled = coursesForSpec.filter((c) => grades[c.id]).length;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2"><GraduationCap size={18}/> 2. Input Nilai Akademik</CardTitle>
-        <CardDescription>Masukkan nilai huruf (A, AB, B, BC, C, D, E) sesuai nilai mutu (A=4,00, AB=3,50, B=3,00, BC=2,50, C=2,00, D=1,00, E=0,00). Rata-rata per kategori dihitung dalam skala 4,00.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4">
-          {categories.map(cat=>{
-            const cs = coursesForSpec.filter(c=>c.competency_category_id===cat.id);
-            return (
-              <div key={cat.id} className="rounded-lg border p-4 bg-white dark:bg-zinc-900 dark:border-zinc-800">
-                <div className="flex items-center justify-between">
-                  <div><div className="font-semibold text-sm">{cat.name} <span className="text-zinc-500 font-normal">({cat.shortName})</span></div><div className="text-xs text-zinc-500">Skor: <b>{academicScores[cat.id] !== undefined ? academicScores[cat.id].toFixed(2).replace(".", ",") : "-"}</b> / 4,00</div></div>
-                  <Badge className="bg-zinc-100 border-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">{cs.length} MK</Badge>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-3 mt-3">
-                  {cs.map(co=>(
-                    <div key={co.id} className="space-y-1">
-                      <Label>{co.code} — {co.name}</Label>
-                      <Select value={grades[co.id]||""} onChange={e=> setGrades((prev: Record<string, GradeLetter>)=>({...prev, [co.id]: e.target.value as GradeLetter}))}>
-                        <option value="">Pilih nilai</option>
-                        {gradeOptions.map(g=> <option key={g} value={g}>{g} - {gradeToScale[g].toFixed(2).replace(".", ",")}</option>)}
-                      </Select>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+    <section>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Nilai mata kuliah</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted">
+            Pilih nilai huruf sesuai transkrip. Nilai dikonversi ke nilai mutu Telkom University (A = 4,00, AB = 3,50,
+            B = 3,00, BC = 2,50, C = 2,00, D = 1,00, E = 0,00).
+          </p>
         </div>
-        <div className="flex justify-between"><Button variant="outline" onClick={onPrev}>Peminatan</Button><Button onClick={onNext} disabled={!canNext}>Ke tahap berikutnya</Button></div>
-        {!canNext && <p className="text-xs text-amber-600">Lengkapi semua nilai.</p>}
-      </CardContent>
-    </Card>
+        <span className="font-mono text-sm text-muted">
+          <span className="font-semibold text-ink">{filled}</span>/{coursesForSpec.length} terisi
+        </span>
+      </div>
+
+      <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface">
+        {categories.map((cat, idx) => {
+          const cs = coursesForSpec.filter((c) => c.competency_category_id === cat.id);
+          const score = academicScores[cat.id] ?? 0;
+          const complete = cs.every((c) => grades[c.id]);
+          return (
+            <div
+              key={cat.id}
+              className={`grid items-center gap-3 p-4 sm:grid-cols-[1fr_220px_88px] sm:gap-6 sm:px-6 ${idx > 0 ? "border-t border-line" : ""}`}
+            >
+              <div>
+                <div className="text-sm font-semibold">{cat.name}</div>
+                {cs.map((co) => (
+                  <div key={co.id} className="text-xs text-muted">
+                    <span className="font-mono">{co.code}</span> · {co.name}
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-2">
+                {cs.map((co) => (
+                  <Select
+                    key={co.id}
+                    aria-label={`Nilai ${co.name}`}
+                    value={grades[co.id] || ""}
+                    onChange={(e) =>
+                      setGrades((prev) => ({ ...prev, [co.id]: e.target.value as GradeLetter }))
+                    }
+                  >
+                    <option value="">Pilih nilai</option>
+                    {gradeOptions.map((g) => (
+                      <option key={g} value={g}>
+                        {g} — {formatNumber(gradeToScale[g])}
+                      </option>
+                    ))}
+                  </Select>
+                ))}
+              </div>
+              <div className="text-right font-mono">
+                <div className={`text-lg font-semibold tabular ${complete ? "" : "text-muted/50"}`}>
+                  {complete ? formatNumber(score) : "–"}
+                </div>
+                <div className="text-[10px] text-muted">/ 4,00</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <Button variant="outline" onClick={onPrev}>
+          <ArrowLeft size={16} /> Peminatan
+        </Button>
+        <div className="flex items-center gap-3">
+          {!canNext && <span className="hidden text-xs text-muted sm:inline">Lengkapi semua nilai untuk lanjut.</span>}
+          <Button onClick={onNext} disabled={!canNext}>
+            Lanjut ke portofolio <ArrowRight size={16} />
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }

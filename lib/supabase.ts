@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import type { SpecializationCode, PMResult } from "./types";
+import type { PMResult } from "./types";
+import { ACADEMIC_WEIGHT, PORTFOLIO_WEIGHT } from "./profile-matching";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey =
@@ -107,8 +108,8 @@ export async function saveAssessmentToSupabase(
       .insert({
         user_id: user.id,
         specialization_id: payload.specializationId,
-        academic_weight: payload.academicWeight ?? 0.4,
-        portfolio_weight: payload.portfolioWeight ?? 0.6,
+        academic_weight: payload.academicWeight ?? ACADEMIC_WEIGHT,
+        portfolio_weight: payload.portfolioWeight ?? PORTFOLIO_WEIGHT,
       })
       .select("id")
       .single();
@@ -136,7 +137,7 @@ export async function saveAssessmentToSupabase(
         .insert(detailsToInsert);
 
       if (detailsError) {
-        console.error("Gagal simpan assessment_details:", detailsError);
+        return { success: false, error: `Gagal menyimpan detail kompetensi: ${detailsError.message}` };
       }
     }
 
@@ -157,7 +158,7 @@ export async function saveAssessmentToSupabase(
         .insert(recsToInsert);
 
       if (recsError) {
-        console.error("Gagal simpan recommendation_results:", recsError);
+        return { success: false, error: `Gagal menyimpan hasil rekomendasi: ${recsError.message}` };
       }
     }
 

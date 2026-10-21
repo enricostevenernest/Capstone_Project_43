@@ -1,28 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "SPK Rekomendasi Tempat Magang — Capstone Project 43",
   description:
-    "Sistem Pendukung Keputusan berbasis Profile Matching (Kusrini) dan Smart Rubric Evaluator (Gemini AI) untuk rekomendasi tempat magang mahasiswa — Kelompok 43, S1 Sistem Informasi, Telkom University Jakarta.",
+    "Sistem Pendukung Keputusan berbasis Profile Matching (Kusrini) dan evaluasi portofolio Gemini AI untuk rekomendasi tempat magang mahasiswa — Kelompok 43, S1 Sistem Informasi, Telkom University Jakarta.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${jakarta.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

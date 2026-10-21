@@ -12,6 +12,18 @@ import type {
 // Re-export types for backward compatibility
 export type { CompetencyInput, InternshipTargetInfo, PMResult } from "./types";
 
+// ---- Konstanta Bobot ----
+
+/** Bobot aspek nilai akademik (Wa) */
+export const ACADEMIC_WEIGHT = 0.4;
+/** Bobot aspek portofolio (Wp) */
+export const PORTFOLIO_WEIGHT = 0.6;
+/** Proporsi Core Factor dan Secondary Factor (Kusrini, 2007) */
+export const CORE_FACTOR_RATIO = 0.6;
+export const SECONDARY_FACTOR_RATIO = 0.4;
+/** Skala maksimum nilai profil & target */
+export const MAX_SCALE = 4;
+
 // ---- Tabel Bobot Nilai GAP (Kusrini, 2007) ----
 
 const GAP_WEIGHT_MAP: Record<number, number> = {
@@ -64,8 +76,8 @@ export function calculateProfileMatching(
   inputs: CompetencyInput[],
   internshipId: string,
   targets: InternshipTargetInfo[],
-  academicWeight = 0.4,
-  portfolioWeight = 0.6,
+  academicWeight = ACADEMIC_WEIGHT,
+  portfolioWeight = PORTFOLIO_WEIGHT,
 ): PMResult {
   // Filter target untuk lowongan ini
   const targetsForInternship = targets.filter(
@@ -120,10 +132,8 @@ export function calculateProfileMatching(
   const nsfP = average(secondaryPortfolio);
 
   // Na & Np (60% CF + 40% SF)
-  const CF_RATIO = 0.6;
-  const SF_RATIO = 0.4;
-  const na = CF_RATIO * ncfA + SF_RATIO * nsfA;
-  const np = CF_RATIO * ncfP + SF_RATIO * nsfP;
+  const na = CORE_FACTOR_RATIO * ncfA + SECONDARY_FACTOR_RATIO * nsfA;
+  const np = CORE_FACTOR_RATIO * ncfP + SECONDARY_FACTOR_RATIO * nsfP;
 
   // Final Score & Match Percentage
   const finalScore = academicWeight * na + portfolioWeight * np;

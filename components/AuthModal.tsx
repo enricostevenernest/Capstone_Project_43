@@ -2,9 +2,8 @@
 import { useState, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LogIn, UserPlus, LogOut, X, User as UserIcon, Loader2 } from "lucide-react";
+import { Input, Label } from "@/components/ui/input";
+import { LogIn, UserPlus, X, Loader2 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 interface AuthModalProps {
@@ -21,6 +20,15 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const configured = isSupabaseConfigured();
@@ -30,7 +38,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     if (!configured) {
       setMessage({
         type: "error",
-        text: "Supabase belum terkonfigurasi. Pastikan NEXT_PUBLIC_SUPABASE_URL dan KEY sudah diisi di .env.local",
+        text: "Supabase belum terkonfigurasi. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local.",
       });
       return;
     }
@@ -40,10 +48,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
           setMessage({ type: "error", text: error.message });
@@ -52,21 +57,17 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
         if (data.user) {
           const loggedInUser = data.user;
-          setMessage({ type: "success", text: "Berhasil masuk!" });
+          setMessage({ type: "success", text: "Berhasil masuk." });
           setTimeout(() => {
             onSuccess?.(loggedInUser);
             onClose();
-          }, 800);
+          }, 600);
         }
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName,
-            },
-          },
+          options: { data: { full_name: fullName } },
         });
 
         if (error) {
@@ -74,16 +75,22 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           return;
         }
 
-        if (data.user) {
+        if (data.user && data.session) {
+          // Konfirmasi email nonaktif: pengguna langsung masuk
           const newUser = data.user;
-          setMessage({
-            type: "success",
-            text: "Akun berhasil dibuat! Silakan cek email jika verifikasi diaktifkan atau langsung login.",
-          });
+          setMessage({ type: "success", text: "Akun dibuat dan Anda sudah masuk." });
           setTimeout(() => {
             onSuccess?.(newUser);
             onClose();
-          }, 1200);
+          }, 800);
+        } else {
+          // Konfirmasi email aktif: belum ada sesi, pengguna harus verifikasi dulu
+          setIsLogin(true);
+          setPassword("");
+          setMessage({
+            type: "success",
+            text: `Akun dibuat. Buka tautan verifikasi yang dikirim ke ${email}, lalu masuk di sini.`,
+          });
         }
       }
     } catch (err: unknown) {
@@ -95,134 +102,123 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md">
-        <Card className="border-zinc-200 dark:border-zinc-800 shadow-xl bg-white dark:bg-zinc-900">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
-            aria-label="Tutup modal"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-title"
+    >
+      <div
+        className="animate-rise relative w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-md p-1 text-muted transition hover:bg-surface-2 hover:text-ink"
+          aria-label="Tutup"
+        >
+          <X size={18} />
+        </button>
+
+        <h2 id="auth-title" className="font-display text-xl font-semibold tracking-tight">
+          {isLogin ? "Masuk ke akun mahasiswa" : "Buat akun mahasiswa"}
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          {isLogin
+            ? "Masuk untuk menyimpan dan membuka kembali hasil rekomendasi."
+            : "Akun dipakai untuk menyimpan riwayat rekomendasi magang Anda."}
+        </p>
+
+        {!configured && (
+          <div className="mt-4 rounded-lg border border-warn/30 bg-warn-soft p-3 text-xs text-warn">
+            Variabel lingkungan Supabase belum lengkap di .env.local.
+          </div>
+        )}
+
+        {message && (
+          <div
+            role="status"
+            className={`mt-4 rounded-lg border p-3 text-xs ${
+              message.type === "success" ? "border-ok/30 bg-ok-soft text-ok" : "border-brand/30 bg-brand-soft text-brand"
+            }`}
           >
-            <X size={20} />
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleAuth} className="mt-5 space-y-3.5">
+          {!isLogin && (
+            <div className="space-y-1.5">
+              <Label htmlFor="auth-name">Nama lengkap</Label>
+              <Input
+                id="auth-name"
+                type="text"
+                required
+                autoComplete="name"
+                placeholder="Nama sesuai KTM"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <Label htmlFor="auth-email">Email</Label>
+            <Input
+              id="auth-email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="nama@student.telkomuniversity.ac.id"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="auth-password">Password</Label>
+            <Input
+              id="auth-password"
+              type="password"
+              required
+              minLength={6}
+              autoComplete={isLogin ? "current-password" : "new-password"}
+              placeholder="Minimal 6 karakter"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <Button type="submit" disabled={loading} className="mt-1 w-full">
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" /> Memproses…
+              </>
+            ) : isLogin ? (
+              <>
+                <LogIn size={16} /> Masuk
+              </>
+            ) : (
+              <>
+                <UserPlus size={16} /> Buat akun
+              </>
+            )}
+          </Button>
+        </form>
+
+        <div className="mt-5 border-t border-line pt-4 text-center">
+          <button
+            type="button"
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setMessage(null);
+            }}
+            className="text-xs font-semibold text-muted hover:text-ink"
+          >
+            {isLogin ? "Belum punya akun? Buat akun" : "Sudah punya akun? Masuk"}
           </button>
-
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="h-8 w-8 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-black">
-                <UserIcon size={16} />
-              </div>
-              <CardTitle className="text-lg">
-                {isLogin ? "Masuk ke Akun Mahasiswa" : "Daftar Akun Mahasiswa"}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-xs">
-              {isLogin
-                ? "Masuk untuk menyimpan dan melihat riwayat rekomendasi magang."
-                : "Buat akun untuk melacak hasil perhitungan SPK dan riwayat magang."}
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            {!configured && (
-              <div className="mb-4 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-3 text-xs text-amber-800 dark:text-amber-300">
-                ⚠️ Supabase environment variables belum lengkap di .env.local.
-              </div>
-            )}
-
-            {message && (
-              <div
-                className={`mb-4 rounded-lg p-3 text-xs border ${
-                  message.type === "success"
-                    ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 text-emerald-800 dark:text-emerald-300"
-                    : "bg-red-50 dark:bg-red-950/40 border-red-200 text-red-800 dark:text-red-300"
-                }`}
-              >
-                {message.text}
-              </div>
-            )}
-
-            <form onSubmit={handleAuth} className="space-y-3">
-              {!isLogin && (
-                <div>
-                  <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                    Nama Lengkap
-                  </label>
-                  <Input
-                    type="text"
-                    required
-                    placeholder="Contoh: Rico Mahasiswa"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-              )}
-
-              <div>
-                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  Email
-                </label>
-                <Input
-                  type="email"
-                  required
-                  placeholder="mahasiswa@telkomuniversity.ac.id"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  Password
-                </label>
-                <Input
-                  type="password"
-                  required
-                  placeholder="Minimal 6 karakter"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full mt-2 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 size={16} className="animate-spin" /> Memproses...
-                  </span>
-                ) : isLogin ? (
-                  <span className="flex items-center gap-2">
-                    <LogIn size={16} /> Masuk
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <UserPlus size={16} /> Daftar Akun
-                  </span>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setMessage(null);
-                }}
-                className="text-xs text-zinc-600 dark:text-zinc-400 hover:underline"
-              >
-                {isLogin
-                  ? "Belum punya akun? Daftar di sini"
-                  : "Sudah punya akun? Masuk sekarang"}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   );

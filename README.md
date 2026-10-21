@@ -19,8 +19,8 @@ Aplikasi web Sistem Pendukung Keputusan (SPK) berbasis metode **Profile Matching
 
 ## Tech Stack (Zero-Budget / Free-Tier Optimized)
 
-- **Framework:** Next.js 15 (App Router) + TypeScript
-- **Styling & UI:** Tailwind CSS + shadcn/ui + Lucide Icons
+- **Framework:** Next.js 16 (App Router, Turbopack) + React 19 + TypeScript
+- **Styling & UI:** Tailwind CSS v4 + komponen UI ringan (gaya shadcn/ui) + Lucide Icons
 - **Data Visualization:** Recharts (Radar Chart / Spider Chart & Bar Chart)
 - **Database & Auth:** Supabase (PostgreSQL)
 - **AI Portfolio Evaluator:** Google Gemini API (`@google/genai` - `gemini-3.8-flash` Structured JSON Output)
@@ -115,26 +115,26 @@ _Catatan: Jika satu kategori kompetensi diwakili lebih dari satu mata kuliah, ni
 
 ## Cara Instalasi & Menjalankan
 
-1. **Inisialisasi Project:**
+1. **Clone Repository:**
 
    ```bash
-   npx create-next-app@latest capstone-project-43 --typescript --tailwind --eslint --app
-   cd capstone-project-43
+   git clone https://github.com/enricostevenernest/Capstone_Project_43.git
+   cd Capstone_Project_43
    ```
 
-2. **Install Dependencies:**
+2. **Install Dependencies** (Node.js 20.9+):
 
    ```bash
-   npm install @supabase/supabase-js @google/genai recharts lucide-react clsx tailwind-merge
+   npm install
    ```
 
 3. **Setup Database Supabase:**
    - Buka project Supabase Anda di [supabase.com](https://supabase.com).
    - Masuk ke menu **SQL Editor** → **New Query**.
-   - Buka file [`Capstone_Project_43/supabase/migration.sql`](file:///c:/Users/Rico/Documents/GitHub/Capstone%20Project%2043/Capstone_Project_43/supabase/migration.sql), copy seluruh isinya, paste di SQL Editor, lalu klik **Run**.
-   - Skrip ini akan membuat ke-8 tabel, constraint, index, policy RLS (Row Level Security), dan memasukkan data awal (seed data) otomatis.
+   - Buka file [`supabase/migration.sql`](supabase/migration.sql), copy seluruh isinya, paste di SQL Editor, lalu klik **Run**.
+   - Skrip ini akan membuat ke-8 tabel, constraint, index, policy RLS (Row Level Security), dan memasukkan data awal (seed data) otomatis. Skrip aman dijalankan ulang.
 
-4. **Konfigurasi Environment Variables (`.env.local`):**
+4. **Konfigurasi Environment Variables:** salin `.env.example` menjadi `.env.local` lalu isi nilainya. File `.env.local` sudah masuk `.gitignore`, jangan di-commit.
 
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url

@@ -1,18 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BarRanking } from "@/components/BarRanking";
-import { RadarProfile } from "@/components/RadarProfile";
-import { Trophy, ExternalLink, BookmarkCheck, CloudUpload, Loader2, CheckCircle2 } from "lucide-react";
+import { GapRuler } from "@/components/GapRuler";
+import { AuthModal } from "@/components/AuthModal";
+import { ExternalLink, CloudUpload, Loader2, CheckCircle2, Printer, RotateCcw, ArrowLeft } from "lucide-react";
 import { internships } from "@/lib/data";
 import { allTargets } from "@/lib/allTargets";
 import type { PMResult } from "@/lib/profile-matching";
+import { ACADEMIC_WEIGHT, PORTFOLIO_WEIGHT } from "@/lib/profile-matching";
 import type { SpecializationCode } from "@/lib/types";
 import { supabase, saveAssessmentToSupabase, isSupabaseConfigured } from "@/lib/supabase";
-import { AuthModal } from "@/components/AuthModal";
-import Link from "next/link";
+import { cn, formatNumber } from "@/lib/utils";
 
 interface Step6Props {
   ranked: PMResult[];
@@ -45,7 +45,6 @@ export function Step6({
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
 
-  const top = ranked[0];
   const configured = isSupabaseConfigured();
 
   useEffect(() => {
@@ -55,31 +54,18 @@ export function Step6({
     });
   }, [configured]);
 
+  const top = ranked[0];
   if (!top) return null;
 
   const topIntern = internships.find((i) => i.id === top.internshipId)!;
-  const barData = ranked.map((r) => {
-    const intern = internships.find((i) => i.id === r.internshipId)!;
-    return { name: intern.position_name, percentage: r.matchPercentage };
-  });
+  const barData = ranked.map((r) => ({
+    name: internships.find((i) => i.id === r.internshipId)?.position_name.replace(" Intern", "") ?? r.internshipId,
+    percentage: r.matchPercentage,
+  }));
+  const topTargets = allTargets.filter((t) => t.internshipId === top.internshipId);
 
-  const targets = allTargets.filter((t) => t.internshipId === top.internshipId);
-  const targetMap: Record<string, number> = {};
-  for (const t of targets) targetMap[t.competency_category_id] = t.target_score;
-
-  const studentMap: Record<string, number> = {};
-  for (const cat of categories) {
-    const a = academicScores[cat.id] ?? 0;
-    const p = portfolioScores[cat.id] ?? 0;
-    studentMap[cat.id] = Number((0.4 * a + 0.6 * p).toFixed(2));
-  }
-
-  async function handleSave() {
-    if (!user) {
-      setIsAuthOpen(true);
-      return;
-    }
-
+  /** Simpan ke Supabase. Tidak bergantung pada state `user` agar aman dipanggil tepat setelah login. */
+  async function performSave() {
     setSaving(true);
     setSaveError(null);
 
@@ -94,8 +80,8 @@ export function Step6({
 
     const result = await saveAssessmentToSupabase({
       specializationId: spec === "SAGE" ? "spec_sage" : "spec_delta",
-      academicWeight: 0.4,
-      portfolioWeight: 0.6,
+      academicWeight: ACADEMIC_WEIGHT,
+      portfolioWeight: PORTFOLIO_WEIGHT,
       details,
       recommendations: ranked,
     });
@@ -105,181 +91,178 @@ export function Step6({
     if (result.success && result.assessmentId) {
       setSavedId(result.assessmentId);
     } else {
-      setSaveError(result.error || "Gagal menyimpan ke database Supabase.");
+      setSaveError(result.error || "Gagal menyimpan ke Supabase.");
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <Card className="border-emerald-200 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
-            <Trophy size={18} /> Rekomendasi Utama
-          </CardTitle>
-          <CardDescription className="text-emerald-700 dark:text-emerald-300">
-            Peringkat 1 berdasarkan persentase kecocokan tertinggi
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
-            {topIntern.position_name}
-          </div>
-          <div className="text-sm text-emerald-800 dark:text-emerald-200">
-            {topIntern.company_name} - {topIntern.description}
-          </div>
-          <div className="text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 my-2">
-            {top.matchPercentage.toFixed(2)}%{" "}
-            <span className="text-sm font-normal">
-              kecocokan (Final {top.finalScore}/5)
-            </span>
-          </div>
-          <a
-            href={topIntern.vacancy_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-emerald-700 underline hover:text-emerald-900"
-          >
-            <ExternalLink size={14} /> Buka Lowongan
-          </a>
-        </CardContent>
-      </Card>
+  function handleSave() {
+    if (!user) {
+      setIsAuthOpen(true);
+      return;
+    }
+    performSave();
+  }
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Bar Chart — Ranking Kecocokan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <BarRanking data={barData} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">
-              Radar Chart — Profil vs Target (Rekomendasi Utama)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RadarProfile
-              categories={categories}
-              studentScores={studentMap}
-              targetScores={targetMap}
-            />
-          </CardContent>
-        </Card>
+  return (
+    <section className="space-y-6">
+      {/* Rekomendasi utama */}
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Rekomendasi utama · {spec}</p>
+            <h1 className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">{topIntern.position_name}</h1>
+            <p className="mt-1 text-muted">
+              {topIntern.company_name} · {topIntern.description}
+            </p>
+            <a
+              href={topIntern.vacancy_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline print:hidden"
+            >
+              <ExternalLink size={14} /> Buka halaman lowongan
+            </a>
+          </div>
+          <div className="lg:text-right">
+            <div className="font-display text-6xl font-bold leading-none tracking-tight tabular sm:text-7xl">
+              {formatNumber(top.matchPercentage, 1)}
+              <span className="text-3xl text-muted">%</span>
+            </div>
+            <p className="mt-2 font-mono text-xs text-muted">
+              kecocokan · nilai akhir {formatNumber(top.finalScore, 3)} / 5
+            </p>
+          </div>
+        </div>
+        <div className="h-1.5 bg-surface-2">
+          <div className="h-full bg-brand" style={{ width: `${Math.min(top.matchPercentage, 100)}%` }} />
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Semua Ranking</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {ranked.map((r, idx) => {
-            const intern = internships.find((i) => i.id === r.internshipId)!;
-            return (
-              <div
-                key={r.internshipId}
-                className={`flex items-center justify-between rounded-lg border p-3 ${
-                  idx === 0
-                    ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950"
-                    : "bg-white dark:bg-zinc-900 dark:border-zinc-800"
-                }`}
-              >
-                <div>
-                  <div className="font-semibold text-sm">
-                    #{idx + 1} {intern.position_name}{" "}
-                    <span className="text-zinc-500 font-normal">
-                      @ {intern.company_name}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Profil vs target */}
+        <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+          <h2 className="font-display text-lg font-semibold">Profil Anda vs kebutuhan posisi ini</h2>
+          <p className="mt-1 text-xs text-muted">
+            Garis tegak = target posisi. Titik = nilai Anda. Angka di kanan = GAP.
+          </p>
+          <div className="mt-5 space-y-5">
+            {categories.map((cat) => {
+              const t = topTargets.find((x) => x.competency_category_id === cat.id);
+              if (!t) return null;
+              return (
+                <div key={cat.id}>
+                  <div className="mb-1.5 flex items-baseline justify-between gap-2">
+                    <span className="text-sm font-semibold">{cat.name}</span>
+                    <span className="font-mono text-[11px] text-muted">
+                      target {t.target_score} · {t.factor_type === "CORE" ? "core" : "secondary"}
                     </span>
                   </div>
-                  <div className="text-xs text-zinc-500">
-                    Na {r.na} - Np {r.np} - Final {r.finalScore}
-                  </div>
+                  <GapRuler
+                    target={t.target_score}
+                    lanes={[
+                      { label: "Akademik", value: academicScores[cat.id] ?? 0 },
+                      { label: "Portofolio", value: portfolioScores[cat.id] ?? 1 },
+                    ]}
+                  />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={idx === 0 ? "bg-emerald-600 text-white" : ""}>
-                    {r.matchPercentage.toFixed(2)}%
-                  </Badge>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Ranking */}
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+            <h2 className="font-display text-lg font-semibold">Peringkat kecocokan</h2>
+            <BarRanking data={barData} />
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            {ranked.map((r, idx) => {
+              const intern = internships.find((i) => i.id === r.internshipId)!;
+              return (
+                <div
+                  key={r.internshipId}
+                  className={cn("flex items-center gap-4 px-5 py-3.5", idx > 0 && "border-t border-line")}
+                >
+                  <span className={cn("font-mono text-sm font-semibold", idx === 0 ? "text-brand" : "text-muted")}>
+                    #{idx + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">{intern.position_name}</div>
+                    <div className="truncate text-xs text-muted">{intern.company_name}</div>
+                  </div>
+                  <span className="font-mono text-sm font-semibold tabular">{formatNumber(r.matchPercentage)}%</span>
                   <a
                     href={intern.vacancy_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-zinc-500 hover:text-zinc-900"
+                    aria-label={`Buka lowongan ${intern.position_name}`}
+                    className="rounded-md p-1 text-muted transition hover:bg-surface-2 hover:text-ink print:hidden"
                   >
                     <ExternalLink size={16} />
                   </a>
                 </div>
-              </div>
-            );
-          })}
-
-          {saveError && (
-            <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3 text-xs text-red-700 dark:text-red-300">
-              {saveError}
-            </div>
-          )}
-
-          {savedId && (
-            <div className="flex items-center justify-between rounded-lg bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 p-3 text-xs text-emerald-800 dark:text-emerald-200">
-              <span className="flex items-center gap-1.5 font-medium">
-                <CheckCircle2 size={16} className="text-emerald-600" /> Hasil berhasil disimpan ke Supabase!
-              </span>
-              <Link href="/history" className="underline font-semibold hover:text-emerald-900">
-                Lihat Riwayat →
-              </Link>
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-4 flex-wrap items-center">
-            <Button variant="outline" onClick={onPrev}>
-              Detail Perhitungan
-            </Button>
-            <Button variant="outline" onClick={onRestart}>
-              Ulangi dari Awal
-            </Button>
-            <Button variant="outline" onClick={() => window.print()}>
-              Cetak Hasil
-            </Button>
-
-            {!savedId ? (
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> Menyimpan...
-                  </>
-                ) : (
-                  <>
-                    <CloudUpload size={16} /> Simpan ke Supabase
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Link
-                href="/history"
-                className="inline-flex h-9 items-center justify-center rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 gap-1.5"
-              >
-                <BookmarkCheck size={16} /> Buka Riwayat Rekomendasi
-              </Link>
-            )}
+              );
+            })}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted">
+        Rekomendasi ini adalah bahan pertimbangan. Keputusan akhir tetap di tangan Anda dan tidak menjamin penerimaan di
+        tempat magang tersebut.
+      </p>
+
+      {saveError && (
+        <div role="alert" className="rounded-lg border border-brand/30 bg-brand-soft p-3 text-sm text-brand">
+          {saveError}
+        </div>
+      )}
+
+      {savedId && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-ok/30 bg-ok-soft p-3 text-sm text-ok">
+          <span className="flex items-center gap-1.5 font-semibold">
+            <CheckCircle2 size={16} /> Hasil tersimpan di akun Anda.
+          </span>
+          <Link href="/history" className="font-semibold underline">
+            Buka riwayat
+          </Link>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 print:hidden">
+        <Button variant="outline" onClick={onPrev}>
+          <ArrowLeft size={16} /> Detail perhitungan
+        </Button>
+        <Button variant="outline" onClick={onRestart}>
+          <RotateCcw size={16} /> Mulai ulang
+        </Button>
+        <Button variant="outline" onClick={() => window.print()}>
+          <Printer size={16} /> Cetak hasil
+        </Button>
+        {!savedId && (
+          <Button onClick={handleSave} disabled={saving} className="sm:ml-auto">
+            {saving ? (
+              <>
+                <Loader2 size={16} className="animate-spin" /> Menyimpan…
+              </>
+            ) : (
+              <>
+                <CloudUpload size={16} /> Simpan ke riwayat
+              </>
+            )}
+          </Button>
+        )}
+      </div>
 
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         onSuccess={(u) => {
           setUser(u);
-          // auto trigger save after login
-          setTimeout(() => {
-            handleSave();
-          }, 300);
+          performSave();
         }}
       />
-    </div>
+    </section>
   );
 }

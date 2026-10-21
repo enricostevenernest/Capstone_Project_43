@@ -1,9 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
 import { AuthModal } from "./AuthModal";
-import { User as UserIcon, LogOut, History, LogIn, ChevronDown } from "lucide-react";
+import { LogOut, History, LogIn, ChevronDown } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 
@@ -16,15 +15,9 @@ export function UserNav() {
   useEffect(() => {
     if (!configured) return;
 
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
     });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
 
     return () => {
       authListener.subscription.unsubscribe();
@@ -37,72 +30,66 @@ export function UserNav() {
     setUser(null);
   }
 
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0];
+
   return (
     <>
-      <div className="relative">
-        {user ? (
-          <div className="relative">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <div className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
-                {user.email?.charAt(0).toUpperCase() || "M"}
-              </div>
-              <span className="max-w-[120px] truncate text-zinc-800 dark:text-zinc-200">
-                {user.user_metadata?.full_name || user.email?.split("@")[0]}
-              </span>
-              <ChevronDown size={14} className="text-zinc-400" />
-            </button>
-
-            {menuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setMenuOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1.5 shadow-lg z-50 animate-in fade-in zoom-in-95">
-                  <div className="px-2 py-1.5 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                    <p className="text-[11px] text-zinc-400">Masuk sebagai</p>
-                    <p className="text-xs font-semibold truncate text-zinc-900 dark:text-zinc-100">
-                      {user.email}
-                    </p>
-                  </div>
-                  <Link
-                    href="/history"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                  >
-                    <History size={14} /> Riwayat Rekomendasi
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
-                  >
-                    <LogOut size={14} /> Keluar (Logout)
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setIsAuthOpen(true)}
-            className="flex items-center gap-1.5 text-xs rounded-full h-8 px-3"
+      {user ? (
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className="flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-2.5 text-xs font-semibold transition hover:bg-surface-2"
           >
-            <LogIn size={14} />
-            <span>Masuk / Akun</span>
-          </Button>
-        )}
-      </div>
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-ink text-[11px] font-bold text-bg">
+              {(displayName || "M").charAt(0).toUpperCase()}
+            </span>
+            <span className="hidden max-w-[110px] truncate sm:inline">{displayName}</span>
+            <ChevronDown size={14} className="text-muted" />
+          </button>
 
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(u) => setUser(u)}
-      />
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div
+                role="menu"
+                className="animate-rise absolute right-0 z-50 mt-2 w-56 rounded-xl border border-line bg-surface p-1.5 shadow-lg"
+              >
+                <div className="mb-1 border-b border-line px-2 py-2">
+                  <p className="text-[11px] text-muted">Masuk sebagai</p>
+                  <p className="truncate text-xs font-semibold">{user.email}</p>
+                </div>
+                <Link
+                  href="/history"
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium hover:bg-surface-2"
+                >
+                  <History size={14} /> Riwayat rekomendasi
+                </Link>
+                <button
+                  role="menuitem"
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-brand hover:bg-brand-soft"
+                >
+                  <LogOut size={14} /> Keluar
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <button
+          onClick={() => setIsAuthOpen(true)}
+          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-xs font-semibold transition hover:bg-surface-2"
+        >
+          <LogIn size={14} />
+          <span className="hidden sm:inline">Masuk</span>
+        </button>
+      )}
+
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} onSuccess={(u) => setUser(u)} />
     </>
   );
 }
