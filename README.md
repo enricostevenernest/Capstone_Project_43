@@ -39,7 +39,9 @@ Aplikasi web Sistem Pendukung Keputusan (SPK) berbasis metode **Profile Matching
    - Memetakan bobot nilai GAP (Skala `1.0` s.d. `5.0`).
    - Menghitung rata-rata _Core Factor_ ($NCF$) dan _Secondary Factor_ ($NSF$) untuk Aspek Akademik ($Na$) dan Aspek Portofolio ($Np$) dengan proporsi $60\% \text{ CF} + 40\% \text{ SF}$.
    - Menghitung Nilai Akhir $= (W_a \times Na) + (W_p \times Np)$ dan mengonversinya menjadi **Persentase Kecocokan** $= (\text{Nilai Akhir} / 5) \times 100\%$.
-6. **Perankingan & Rekomendasi Utama:** Sistem mengurutkan tempat/bidang magang dari persentase tertinggi ke terendah, menampilkan visualisasi _Radar Chart_ perbandingan gap, mengarahkan mahasiswa ke tautan lowongan paling sesuai, dan menyimpan riwayat rekomendasi.
+6. **Perankingan & Rekomendasi Utama:** Sistem mengurutkan tempat/bidang magang dari persentase tertinggi ke terendah, menampilkan perbandingan profil terhadap target, saran pengembangan untuk kompetensi yang masih kurang, detail lowongan, dan menyimpan riwayat rekomendasi.
+7. **Pemeriksaan Admin (UC-10, UC-11, UC-12):** Admin program studi membuka `/admin` untuk memeriksa hasil yang disimpan mahasiswa, memvalidasi, mengoreksi skor portofolio atau rekomendasi akhir (wajib dengan alasan, peringkat dihitung ulang otomatis), atau meminta perbaikan. Status dan catatan admin tampil di riwayat mahasiswa.
+8. **Pengelolaan Lowongan:** Admin menambah, mengubah, menyembunyikan, atau menghapus lowongan beserta nilai target dan pembagian core/secondary factor di `/admin/lowongan`.
 
 ---
 
@@ -111,6 +113,14 @@ _Catatan: Jika satu kategori kompetensi diwakili lebih dari satu mata kuliah, ni
 7. `assessment_details`: `id`, `assessment_id`, `competency_category_id`, `academic_score` (0.00-4.00), `portfolio_essay`, `evidence_url`, `portfolio_score_ai` (1-4), `ai_reasoning`
 8. `recommendation_results`: `id`, `assessment_id`, `internship_id`, `na_score`, `np_score`, `final_score`, `match_percentage`, `rank_position`
 
+Tambahan dari `migration_002_admin.sql`:
+
+- `admin_users`: `user_id` akun yang berperan sebagai admin, dicek lewat fungsi `is_admin()`
+- `student_assessments`: `student_name`, `student_email`, `status` (`pending` | `approved` | `corrected` | `needs_revision`), `admin_note`, `override_internship_id`, `reviewed_by`, `reviewed_at`
+- `assessment_details`: `portfolio_score_admin` (koreksi skor oleh admin, 1-4)
+- `internships`: `is_active`
+- `review_logs`: riwayat setiap pemeriksaan admin
+
 ---
 
 ## Cara Instalasi & Menjalankan
@@ -133,6 +143,16 @@ _Catatan: Jika satu kategori kompetensi diwakili lebih dari satu mata kuliah, ni
    - Masuk ke menu **SQL Editor** → **New Query**.
    - Buka file [`supabase/migration.sql`](supabase/migration.sql), copy seluruh isinya, paste di SQL Editor, lalu klik **Run**.
    - Skrip ini akan membuat ke-8 tabel, constraint, index, policy RLS (Row Level Security), dan memasukkan data awal (seed data) otomatis. Skrip aman dijalankan ulang.
+   - Setelah itu jalankan juga [`supabase/migration_002_admin.sql`](supabase/migration_002_admin.sql). Skrip ini menambah peran admin, status validasi, riwayat pemeriksaan, dan menyamakan nilai target lama (skala 1-5) dengan skala 1-4 yang dipakai laporan.
+   - Jadikan akunmu admin. Daftar dulu lewat aplikasi, lalu jalankan di SQL Editor:
+
+     ```sql
+     INSERT INTO admin_users (user_id)
+     SELECT id FROM auth.users WHERE email = 'email.kamu@contoh.ac.id'
+     ON CONFLICT DO NOTHING;
+     ```
+
+     Menu **Admin** akan muncul di navigasi setelah kamu masuk dengan akun tersebut.
 
 4. **Konfigurasi Environment Variables:** salin `.env.example` menjadi `.env.local` lalu isi nilainya. File `.env.local` sudah masuk `.gitignore`, jangan di-commit.
 
@@ -142,7 +162,9 @@ _Catatan: Jika satu kategori kompetensi diwakili lebih dari satu mata kuliah, ni
    GEMINI_API_KEY=your_google_ai_studio_free_api_key
    ```
 
-5. **Jalankan Server Development:**
+5. **Cek Perhitungan (opsional):** `npm test` mencocokkan hasil Profile Matching dengan data uji Tabel 28 dan 31 pada laporan.
+
+6. **Jalankan Server Development:**
    ```bash
    npm run dev
    ```

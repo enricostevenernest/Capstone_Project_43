@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserNav } from "./UserNav";
+import { useAuth } from "./useAuth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -12,6 +13,8 @@ const NAV = [
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
+  const { isAdmin } = useAuth();
+  const nav = isAdmin ? [...NAV, { href: "/admin", label: "Admin" }] : NAV;
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/85 backdrop-blur print:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
@@ -25,7 +28,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </span>
         </Link>
         <nav className="flex min-w-0 items-center gap-0.5 sm:gap-1">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link

@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import type { PMResult } from "@/lib/profile-matching";
 import { ACADEMIC_WEIGHT, PORTFOLIO_WEIGHT } from "@/lib/profile-matching";
-import { internships } from "@/lib/data";
+import { useReferenceData } from "@/components/ReferenceProvider";
+import { findInternship } from "@/lib/reference";
 import { gapTone, formatGap } from "@/components/GapRuler";
 import { cn, formatNumber } from "@/lib/utils";
 
@@ -31,14 +32,16 @@ export function Step5({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { data: ref } = useReferenceData();
   const [openId, setOpenId] = useState<string | null>(ranked[0]?.internshipId ?? null);
 
   return (
     <section>
-      <h1 className="font-display text-3xl font-bold tracking-tight">Detail perhitungan Profile Matching</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Dari mana angka kecocokannya?</h1>
       <p className="mt-2 max-w-3xl text-sm text-muted">
-        GAP = nilai profil − nilai target. Setiap GAP dikonversi ke bobot nilai (tabel Kusrini, 2007), dirata-ratakan
-        per core factor (NCF) dan secondary factor (NSF), lalu digabung menjadi Na dan Np.
+        Untuk tiap posisi, nilaimu dikurangi target posisi itu (GAP). Selisihnya diubah jadi bobot memakai tabel
+        Kusrini (2007), dirata-rata per faktor utama (NCF) dan pendukung (NSF), lalu digabung menjadi Na dan Np. Buka
+        salah satu posisi untuk melihat hitungan lengkapnya.
       </p>
       <div className="mt-4 flex flex-wrap gap-2 font-mono text-xs">
         <span className="rounded-md bg-surface-2 px-2 py-1">N = 60% NCF + 40% NSF</span>
@@ -50,7 +53,7 @@ export function Step5({
 
       <div className="mt-6 space-y-3">
         {ranked.map((r, idx) => {
-          const intern = internships.find((i) => i.id === r.internshipId);
+          const intern = findInternship(ref, r.internshipId);
           const open = openId === r.internshipId;
           return (
             <div key={r.internshipId} className="overflow-hidden rounded-2xl border border-line bg-surface">
@@ -101,7 +104,7 @@ export function Step5({
                                     b.factorType === "CORE" ? "bg-ink text-bg" : "bg-surface-2 text-muted",
                                   )}
                                 >
-                                  {b.factorType === "CORE" ? "Core" : "Secondary"}
+                                  {b.factorType === "CORE" ? "Utama" : "Pendukung"}
                                 </span>
                               </td>
                               <td className="px-3 py-2 text-right font-mono text-xs">{b.target}</td>
@@ -135,10 +138,10 @@ export function Step5({
 
       <div className="mt-6 flex items-center justify-between gap-3">
         <Button variant="outline" onClick={onPrev}>
-          <ArrowLeft size={16} /> Pratinjau
+          <ArrowLeft size={16} /> Kembali ke profil
         </Button>
         <Button onClick={onNext}>
-          Lihat rekomendasi <ArrowRight size={16} />
+          Lihat hasilnya <ArrowRight size={16} />
         </Button>
       </div>
     </section>

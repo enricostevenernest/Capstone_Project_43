@@ -6,6 +6,20 @@ import { Input, Label } from "@/components/ui/input";
 import { LogIn, UserPlus, X, Loader2 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
+/** Terjemahkan pesan error Supabase Auth yang paling sering muncul */
+function authErrorText(message: string) {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login credentials")) return "Email atau password-nya salah. Coba cek lagi.";
+  if (m.includes("already registered") || m.includes("already been registered")) {
+    return "Email ini sudah terdaftar. Coba masuk saja.";
+  }
+  if (m.includes("email not confirmed")) return "Email-mu belum diverifikasi. Cek kotak masuk atau folder spam.";
+  if (m.includes("at least 6")) return "Password minimal 6 karakter.";
+  if (m.includes("rate limit") || m.includes("too many")) return "Terlalu banyak percobaan. Tunggu sebentar, lalu coba lagi.";
+  if (m.includes("invalid") && m.includes("email")) return "Format email-nya belum benar.";
+  return message;
+}
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -38,7 +52,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     if (!configured) {
       setMessage({
         type: "error",
-        text: "Supabase belum terkonfigurasi. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local.",
+        text: "Database belum tersambung. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local.",
       });
       return;
     }
@@ -51,13 +65,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
-          setMessage({ type: "error", text: error.message });
+          setMessage({ type: "error", text: authErrorText(error.message) });
           return;
         }
 
         if (data.user) {
           const loggedInUser = data.user;
-          setMessage({ type: "success", text: "Berhasil masuk." });
+          setMessage({ type: "success", text: "Berhasil masuk. Selamat datang kembali!" });
           setTimeout(() => {
             onSuccess?.(loggedInUser);
             onClose();
@@ -71,14 +85,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         });
 
         if (error) {
-          setMessage({ type: "error", text: error.message });
+          setMessage({ type: "error", text: authErrorText(error.message) });
           return;
         }
 
         if (data.user && data.session) {
           // Konfirmasi email nonaktif: pengguna langsung masuk
           const newUser = data.user;
-          setMessage({ type: "success", text: "Akun dibuat dan Anda sudah masuk." });
+          setMessage({ type: "success", text: "Akunmu sudah jadi dan kamu langsung masuk." });
           setTimeout(() => {
             onSuccess?.(newUser);
             onClose();
@@ -89,12 +103,12 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           setPassword("");
           setMessage({
             type: "success",
-            text: `Akun dibuat. Buka tautan verifikasi yang dikirim ke ${email}, lalu masuk di sini.`,
+            text: `Akunmu sudah jadi. Buka tautan verifikasi yang kami kirim ke ${email}, lalu masuk di sini.`,
           });
         }
       }
     } catch (err: unknown) {
-      const errText = err instanceof Error ? err.message : "Terjadi kesalahan.";
+      const errText = err instanceof Error ? err.message : "Ada yang tidak beres. Coba lagi sebentar lagi.";
       setMessage({ type: "error", text: errText });
     } finally {
       setLoading(false);
@@ -122,17 +136,17 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         </button>
 
         <h2 id="auth-title" className="font-display text-xl font-semibold tracking-tight">
-          {isLogin ? "Masuk ke akun mahasiswa" : "Buat akun mahasiswa"}
+          {isLogin ? "Masuk ke akunmu" : "Bikin akun baru"}
         </h2>
         <p className="mt-1 text-sm text-muted">
           {isLogin
-            ? "Masuk untuk menyimpan dan membuka kembali hasil rekomendasi."
-            : "Akun dipakai untuk menyimpan riwayat rekomendasi magang Anda."}
+            ? "Supaya hasil rekomendasimu tersimpan dan bisa dibuka lagi kapan saja."
+            : "Cukup nama, email, dan password. Akun ini dipakai untuk menyimpan riwayat rekomendasimu."}
         </p>
 
         {!configured && (
           <div className="mt-4 rounded-lg border border-warn/30 bg-warn-soft p-3 text-xs text-warn">
-            Variabel lingkungan Supabase belum lengkap di .env.local.
+            Database belum tersambung, jadi login belum bisa dipakai.
           </div>
         )}
 
@@ -156,7 +170,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 type="text"
                 required
                 autoComplete="name"
-                placeholder="Nama sesuai KTM"
+                placeholder="Nama lengkap sesuai KTM"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -201,7 +215,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               </>
             ) : (
               <>
-                <UserPlus size={16} /> Buat akun
+                <UserPlus size={16} /> Daftar
               </>
             )}
           </Button>
@@ -216,7 +230,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             }}
             className="text-xs font-semibold text-muted hover:text-ink"
           >
-            {isLogin ? "Belum punya akun? Buat akun" : "Sudah punya akun? Masuk"}
+            {isLogin ? "Belum punya akun? Daftar di sini" : "Sudah punya akun? Masuk saja"}
           </button>
         </div>
       </div>

@@ -45,6 +45,8 @@ export interface Internship {
   company_name: string;
   description: string;
   vacancy_url: string;
+  /** false = dinonaktifkan admin, tidak ditampilkan ke mahasiswa */
+  is_active?: boolean;
 }
 
 /** Target skor per kompetensi untuk setiap lowongan */
@@ -55,6 +57,9 @@ export interface InternshipTarget {
   target_score: number;
   factor_type: FactorType;
 }
+
+/** Status pemeriksaan hasil rekomendasi oleh admin (UC-10, UC-11) */
+export type AssessmentStatus = "pending" | "approved" | "corrected" | "needs_revision";
 
 // ---- Profile Matching types ----
 

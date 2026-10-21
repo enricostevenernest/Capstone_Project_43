@@ -30,10 +30,10 @@ export function Step2({
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Nilai mata kuliah</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Berapa nilaimu di mata kuliah ini?</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            Pilih nilai huruf sesuai transkrip. Nilai dikonversi ke nilai mutu Telkom University (A = 4,00, AB = 3,50,
-            B = 3,00, BC = 2,50, C = 2,00, D = 1,00, E = 0,00).
+            Buka transkripmu dan pilih nilai huruf yang tertera. Sistem mengubahnya ke nilai mutu Telkom University,
+            dari A = 4,00 sampai E = 0,00.
           </p>
         </div>
         <span className="font-mono text-sm text-muted">
@@ -72,7 +72,7 @@ export function Step2({
                     <option value="">Pilih nilai</option>
                     {gradeOptions.map((g) => (
                       <option key={g} value={g}>
-                        {g} — {formatNumber(gradeToScale[g])}
+                        {g} ({formatNumber(gradeToScale[g])})
                       </option>
                     ))}
                   </Select>
@@ -91,10 +91,10 @@ export function Step2({
 
       <div className="mt-6 flex items-center justify-between gap-3">
         <Button variant="outline" onClick={onPrev}>
-          <ArrowLeft size={16} /> Peminatan
+          <ArrowLeft size={16} /> Ganti peminatan
         </Button>
         <div className="flex items-center gap-3">
-          {!canNext && <span className="hidden text-xs text-muted sm:inline">Lengkapi semua nilai untuk lanjut.</span>}
+          {!canNext && <span className="text-xs text-muted">Masih ada nilai yang kosong.</span>}
           <Button onClick={onNext} disabled={!canNext}>
             Lanjut ke portofolio <ArrowRight size={16} />
           </Button>

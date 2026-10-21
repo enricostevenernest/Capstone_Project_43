@@ -6,10 +6,10 @@ import { useThemeColors } from "@/components/useThemeColors";
 import { formatNumber } from "@/lib/utils";
 
 const MODE_LABEL: Record<string, { text: string; tone: string }> = {
-  gemini: { text: "Dinilai oleh Gemini AI", tone: "border-ok/30 bg-ok-soft text-ok" },
-  heuristic: { text: "Dinilai heuristik — GEMINI_API_KEY belum diatur", tone: "border-warn/30 bg-warn-soft text-warn" },
-  heuristic_fallback: { text: "Dinilai heuristik — Gemini sedang tidak dapat dihubungi", tone: "border-warn/30 bg-warn-soft text-warn" },
-  skipped_all: { text: "Semua portofolio kosong — skor default 1", tone: "border-line bg-surface-2 text-muted" },
+  gemini: { text: "Dinilai Gemini AI", tone: "border-ok/30 bg-ok-soft text-ok" },
+  heuristic: { text: "Dinilai dengan aturan kata kunci (kunci Gemini belum diatur)", tone: "border-warn/30 bg-warn-soft text-warn" },
+  heuristic_fallback: { text: "Dinilai dengan aturan kata kunci (Gemini sedang tidak bisa dihubungi)", tone: "border-warn/30 bg-warn-soft text-warn" },
+  skipped_all: { text: "Portofolio kosong, semua kategori dapat skor 1", tone: "border-line bg-surface-2 text-muted" },
 };
 
 export function Step4({
@@ -43,10 +43,10 @@ export function Step4({
     <section>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Pratinjau profil kompetensi</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Begini profil kompetensimu</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            Periksa skor sebelum dihitung. Jika penilaian portofolio terasa kurang tepat, perjelas deskripsinya lalu nilai
-            ulang.
+            Cek dulu sebelum dihitung. Kalau skor portofolio terasa terlalu rendah, biasanya ceritanya kurang detail.
+            Tambahkan hasil atau angka konkret, lalu nilai ulang.
           </p>
         </div>
         {mode && <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${mode.tone}`}>{mode.text}</span>}
@@ -80,7 +80,7 @@ export function Step4({
                   rel="noopener noreferrer"
                   className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-data hover:underline"
                 >
-                  <ExternalLink size={12} /> Buka bukti
+                  <ExternalLink size={12} /> Lihat bukti
                 </a>
               )}
             </div>
@@ -88,7 +88,7 @@ export function Step4({
         </div>
 
         <div className="rounded-2xl border border-line bg-surface p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Akademik vs portofolio</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Nilai kuliah vs portofolio</p>
           <div className="mt-2 h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData} outerRadius="72%">
@@ -107,10 +107,10 @@ export function Step4({
 
       <div className="mt-6 flex items-center justify-between gap-3">
         <Button variant="outline" onClick={onPrev}>
-          <ArrowLeft size={16} /> Ubah portofolio
+          <ArrowLeft size={16} /> Perbaiki portofolio
         </Button>
         <Button onClick={onNext}>
-          Hitung kecocokan <ArrowRight size={16} />
+          Hitung kecocokanku <ArrowRight size={16} />
         </Button>
       </div>
     </section>

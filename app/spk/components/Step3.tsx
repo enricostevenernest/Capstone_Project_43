@@ -4,10 +4,10 @@ import { Input, Textarea, Label } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 
 const RUBRIC = [
-  { score: 1, text: "Belum ada bukti, atau tidak relevan dengan kategori." },
-  { score: 2, text: "Relevan, tetapi masih latihan dasar atau tutorial." },
-  { score: 3, text: "Proyek menengah: tugas besar, studi kasus nyata, freelance, sertifikasi." },
-  { score: 4, text: "Proyek kompleks dengan hasil nyata: dipakai pengguna atau meraih penghargaan." },
+  { score: 1, text: "Belum ada bukti, atau ceritanya tidak nyambung dengan kategori." },
+  { score: 2, text: "Sudah relevan, tapi masih latihan dasar atau ikut tutorial." },
+  { score: 3, text: "Proyek menengah: tugas besar, studi kasus nyata, freelance, atau sertifikasi." },
+  { score: 4, text: "Proyek kompleks yang hasilnya terbukti: dipakai orang sungguhan atau menang lomba." },
 ];
 
 export function Step3({
@@ -38,10 +38,10 @@ export function Step3({
   return (
     <section className="grid gap-8 lg:grid-cols-[1fr_280px]">
       <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Portofolio per kompetensi</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Ceritakan apa yang pernah kamu kerjakan</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted">
-          Ceritakan proyek, sertifikasi, atau pengalaman yang paling kuat untuk tiap kategori: apa yang dibuat, peran
-          Anda, teknologi yang dipakai, dan hasilnya. Kategori yang dikosongkan otomatis bernilai 1.
+          Satu cerita terbaik per kategori sudah cukup. Sebutkan apa yang kamu buat, peranmu di situ, alat yang dipakai,
+          dan hasilnya. Belum punya pengalaman di suatu kategori? Kosongkan saja, nanti otomatis dapat skor 1.
         </p>
 
         <div className="mt-6 space-y-4">
@@ -55,13 +55,13 @@ export function Step3({
                   <span className="font-mono text-[11px] text-muted">{essay.length} karakter</span>
                 </div>
                 <div className="mt-3 space-y-1.5">
-                  <Label htmlFor={`essay-${cat.id}`}>Deskripsi portofolio (opsional)</Label>
+                  <Label htmlFor={`essay-${cat.id}`}>Ceritamu (opsional)</Label>
                   <Textarea
                     id={`essay-${cat.id}`}
                     value={essay}
                     rows={4}
                     onChange={(e) => setEssays((prev) => ({ ...prev, [cat.id]: e.target.value }))}
-                    placeholder="Contoh: Membangun sistem inventaris untuk UMKM dengan Laravel dan React, dipakai 30 pengguna setiap hari."
+                    placeholder="Contoh: Aku membangun sistem inventaris untuk toko kue tetangga pakai Laravel dan React. Sekarang dipakai 3 karyawan setiap hari."
                   />
                 </div>
                 <div className="mt-3 space-y-1.5">
@@ -78,7 +78,7 @@ export function Step3({
                   />
                   {invalid && (
                     <p id={`evidence-err-${cat.id}`} className="text-xs text-brand">
-                      Tautan harus diawali http:// atau https:// dan berisi domain lengkap.
+                      Tautannya belum lengkap. Awali dengan https:// lalu nama situsnya, misalnya https://github.com/namamu.
                     </p>
                   )}
                 </div>
@@ -95,16 +95,16 @@ export function Step3({
 
         <div className="mt-6 flex items-center justify-between gap-3">
           <Button variant="outline" onClick={onPrev}>
-            <ArrowLeft size={16} /> Nilai
+            <ArrowLeft size={16} /> Kembali ke nilai
           </Button>
           <Button onClick={onEvaluate} disabled={evaluating || invalidEvidence.length > 0}>
             {evaluating ? (
               <>
-                <Loader2 size={16} className="animate-spin" /> Menilai portofolio…
+                <Loader2 size={16} className="animate-spin" /> Sedang dibaca AI…
               </>
             ) : (
               <>
-                <Sparkles size={16} /> Nilai portofolio
+                <Sparkles size={16} /> Nilai portofolioku
               </>
             )}
           </Button>
@@ -113,7 +113,7 @@ export function Step3({
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
         <div className="rounded-2xl border border-line bg-surface p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Rubrik penilaian</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Cara AI memberi skor</p>
           <ol className="mt-3 space-y-3">
             {RUBRIC.map((r) => (
               <li key={r.score} className="flex gap-3 text-sm">
@@ -125,7 +125,7 @@ export function Step3({
             ))}
           </ol>
           <p className="mt-4 border-t border-line pt-3 text-xs text-muted">
-            Diadaptasi dari Paulson dkk. (1991). {filled} dari {categories.length} kategori sudah diisi.
+            Rubrik diadaptasi dari Paulson dkk. (1991). Kamu sudah mengisi {filled} dari {categories.length} kategori.
           </p>
         </div>
       </aside>

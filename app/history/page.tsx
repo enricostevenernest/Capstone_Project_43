@@ -2,12 +2,20 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import { ChevronDown, ExternalLink, Loader2, LogIn, ArrowRight } from "lucide-react";
-import { getStudentAssessmentHistory, SavedAssessmentHistory, supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { ChevronDown, ExternalLink, Loader2, LogIn, ArrowRight, MessageSquareText } from "lucide-react";
+import {
+  getStudentAssessmentHistory,
+  SavedAssessmentHistory,
+  supabase,
+  isSupabaseConfigured,
+  effectivePortfolioScore,
+} from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AuthModal } from "@/components/AuthModal";
 import { Button } from "@/components/ui/button";
-import { internships, competencyCategories } from "@/lib/data";
+import { StatusBadge } from "@/components/StatusBadge";
+import { useReferenceData } from "@/components/ReferenceProvider";
+import { findCategory, findInternship } from "@/lib/reference";
 import { cn, formatNumber } from "@/lib/utils";
 
 function EmptyState({ title, body, action }: { title: string; body: string; action: React.ReactNode }) {
@@ -22,6 +30,7 @@ function EmptyState({ title, body, action }: { title: string; body: string; acti
 
 export default function HistoryPage() {
   const configured = isSupabaseConfigured();
+  const { data: ref } = useReferenceData();
   const [history, setHistory] = useState<SavedAssessmentHistory[]>([]);
   const [authReady, setAuthReady] = useState(!configured);
   const [loading, setLoading] = useState(false);
@@ -62,14 +71,14 @@ export default function HistoryPage() {
     };
   }, [configured, loadHistory]);
 
-  const getInternship = (id: string) => internships.find((i) => i.id === id);
-  const getCategory = (id: string) => competencyCategories.find((c) => c.id === id);
+  const getInternship = (id: string | null | undefined) => findInternship(ref, id);
+  const getCategory = (id: string) => findCategory(ref, id);
 
   let content: React.ReactNode;
   if (!configured) {
     content = (
       <div className="rounded-2xl border border-warn/30 bg-warn-soft p-5 text-sm text-warn">
-        <p className="font-semibold">Supabase belum dikonfigurasi</p>
+        <p className="font-semibold">Database belum tersambung</p>
         <p className="mt-1 text-xs">
           Isi <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> dan{" "}
           <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> di <code className="font-mono">.env.local</code>.
@@ -80,17 +89,17 @@ export default function HistoryPage() {
     content = (
       <div className="flex flex-col items-center gap-2 py-20 text-muted">
         <Loader2 size={22} className="animate-spin" />
-        <p className="text-xs">Memuat riwayat…</p>
+        <p className="text-xs">Mengambil riwayatmu…</p>
       </div>
     );
   } else if (!user) {
     content = (
       <EmptyState
-        title="Masuk untuk melihat riwayat"
-        body="Riwayat rekomendasi disimpan per akun. Masuk dengan akun yang Anda pakai saat menyimpan hasil."
+        title="Masuk dulu, ya"
+        body="Riwayat disimpan per akun. Pakai akun yang sama dengan saat kamu menyimpan hasil penilaian."
         action={
           <Button onClick={() => setIsAuthOpen(true)}>
-            <LogIn size={16} /> Masuk atau buat akun
+            <LogIn size={16} /> Masuk atau daftar
           </Button>
         }
       />
@@ -98,7 +107,7 @@ export default function HistoryPage() {
   } else if (error) {
     content = (
       <div role="alert" className="rounded-2xl border border-brand/30 bg-brand-soft p-5 text-sm text-brand">
-        Riwayat gagal dimuat: {error}
+        Riwayatmu belum bisa diambil ({error}).
         <button onClick={loadHistory} className="ml-2 font-semibold underline">
           Coba lagi
         </button>
@@ -107,8 +116,8 @@ export default function HistoryPage() {
   } else if (history.length === 0) {
     content = (
       <EmptyState
-        title="Belum ada riwayat"
-        body="Selesaikan penilaian lalu pilih Simpan ke riwayat di langkah terakhir. Hasilnya akan muncul di sini."
+        title="Riwayatmu masih kosong"
+        body="Selesaikan penilaian sampai langkah terakhir, lalu tekan Simpan ke riwayat. Hasilnya muncul di sini dan bisa kamu buka kapan saja."
         action={
           <Link
             href="/spk"
@@ -134,7 +143,8 @@ export default function HistoryPage() {
           const specCode = item.specialization_id === "spec_sage" ? "SAGE" : "DELTA";
           const sortedRecs = [...(item.recommendation_results || [])].sort((a, b) => a.rank_position - b.rank_position);
           const topRec = sortedRecs[0];
-          const topIntern = topRec ? getInternship(topRec.internship_id) : null;
+          const overrideIntern = getInternship(item.override_internship_id);
+          const topIntern = overrideIntern ?? (topRec ? getInternship(topRec.internship_id) : null);
 
           return (
             <div key={item.id} className="overflow-hidden rounded-2xl border border-line bg-surface">
@@ -149,13 +159,14 @@ export default function HistoryPage() {
                     <span className="rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold">
                       {specCode}
                     </span>
+                    <StatusBadge status={item.status} />
                   </div>
                   <div className="mt-0.5 truncate text-xs text-muted">
                     {dateStr}
                     {topIntern ? ` · ${topIntern.company_name}` : ""}
                   </div>
                 </div>
-                {topRec && (
+                {topRec && !overrideIntern && (
                   <span className="font-mono text-lg font-semibold text-brand tabular">
                     {formatNumber(Number(topRec.match_percentage), 1)}%
                   </span>
@@ -165,6 +176,30 @@ export default function HistoryPage() {
 
               {isExpanded && (
                 <div className="grid gap-6 border-t border-line p-5 lg:grid-cols-2">
+                  {(item.admin_note || overrideIntern) && (
+                    <div className="rounded-xl border border-data/30 bg-data-soft p-4 text-sm lg:col-span-2">
+                      <p className="flex items-center gap-1.5 font-semibold text-data">
+                        <MessageSquareText size={16} /> Catatan dari admin program studi
+                      </p>
+                      {overrideIntern && (
+                        <p className="mt-2">
+                          Rekomendasi akhir diganti menjadi <b>{overrideIntern.position_name}</b> di{" "}
+                          {overrideIntern.company_name}.
+                        </p>
+                      )}
+                      {item.admin_note && <p className="mt-1 leading-relaxed">{item.admin_note}</p>}
+                      {item.reviewed_at && (
+                        <p className="mt-2 text-xs text-muted">
+                          Diperiksa{" "}
+                          {new Date(item.reviewed_at).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted">Peringkat posisi</h3>
                     <ol className="mt-2 divide-y divide-line">
@@ -181,7 +216,7 @@ export default function HistoryPage() {
                             <span className="w-14 text-right font-mono text-xs font-semibold tabular">
                               {formatNumber(Number(rec.match_percentage), 1)}%
                             </span>
-                            <a
+                            {intern.vacancy_url && <a
                               href={intern.vacancy_url}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -189,7 +224,7 @@ export default function HistoryPage() {
                               className="text-muted hover:text-ink"
                             >
                               <ExternalLink size={14} />
-                            </a>
+                            </a>}
                           </li>
                         );
                       })}
@@ -211,8 +246,11 @@ export default function HistoryPage() {
                                 <span className="shrink-0 font-mono text-xs">
                                   {formatNumber(Number(det.academic_score))}
                                   <span className="text-muted"> akd</span> ·{" "}
-                                  <span className="font-semibold text-data">{det.portfolio_score_ai ?? "–"}</span>
+                                  <span className="font-semibold text-data">{effectivePortfolioScore(det)}</span>
                                   <span className="text-muted"> port</span>
+                                  {det.portfolio_score_admin != null && det.portfolio_score_admin !== det.portfolio_score_ai && (
+                                    <span className="text-muted"> (AI: {det.portfolio_score_ai ?? "–"})</span>
+                                  )}
                                 </span>
                               </div>
                               {det.ai_reasoning && (
@@ -240,7 +278,7 @@ export default function HistoryPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-bold tracking-tight">Riwayat rekomendasi</h1>
-            <p className="mt-1 text-sm text-muted">Hasil penilaian yang pernah Anda simpan, terbaru di atas.</p>
+            <p className="mt-1 text-sm text-muted">Semua hasil yang pernah kamu simpan, yang terbaru paling atas.</p>
           </div>
           {user && history.length > 0 && (
             <Link

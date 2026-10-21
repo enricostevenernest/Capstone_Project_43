@@ -1,22 +1,21 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
-import { competencyCategories, internships } from "@/lib/data";
-import type { SpecializationCode } from "@/lib/data";
+import type { SpecializationCode } from "@/lib/types";
+import { activeInternshipsFor, categoriesFor } from "@/lib/reference";
+import { useReferenceData } from "@/components/ReferenceProvider";
 import { cn } from "@/lib/utils";
 
-const OPTIONS: { code: SpecializationCode; specId: string; title: string; focus: string }[] = [
+const OPTIONS: { code: SpecializationCode; title: string; focus: string }[] = [
   {
     code: "SAGE",
-    specId: "spec_sage",
     title: "Software and IT Governance Engineering",
-    focus: "Rekayasa perangkat lunak serta tata kelola teknologi informasi.",
+    focus: "Buat kamu yang senang membangun aplikasi atau mengatur bagaimana TI dikelola di sebuah organisasi.",
   },
   {
     code: "DELTA",
-    specId: "spec_delta",
     title: "Data Exploration, Learning & Translational Analytics",
-    focus: "Eksplorasi data, pembelajaran mesin, dan analitik untuk keputusan bisnis.",
+    focus: "Buat kamu yang suka mengulik data, membangun model, lalu mengubah angka jadi keputusan bisnis.",
   },
 ];
 
@@ -29,19 +28,21 @@ export function Step1({
   setSpec: (s: SpecializationCode) => void;
   onNext: () => void;
 }) {
+  const { data } = useReferenceData();
+
   return (
     <section>
-      <h1 className="font-display text-3xl font-bold tracking-tight">Pilih peminatan Anda</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Kamu ambil peminatan apa?</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">
-        Peminatan menjadi penyaring awal: hanya kategori kompetensi dan posisi magang dari peminatan ini yang
-        dibandingkan dengan profil Anda.
+        Pilihan ini menentukan mata kuliah yang ditanyakan dan posisi magang yang dibandingkan dengan profilmu. Kalau
+        salah pilih, kamu bisa kembali ke sini kapan saja.
       </p>
 
       <div role="radiogroup" aria-label="Peminatan" className="mt-6 grid gap-4 md:grid-cols-2">
         {OPTIONS.map((opt) => {
           const selected = spec === opt.code;
-          const cats = competencyCategories.filter((c) => c.specialization_id === opt.specId);
-          const roles = internships.filter((i) => i.specialization_id === opt.specId);
+          const cats = categoriesFor(data, opt.code);
+          const roles = activeInternshipsFor(data, opt.code);
           return (
             <button
               key={opt.code}
@@ -70,7 +71,7 @@ export function Step1({
                 ))}
               </div>
               <p className="mt-4 text-xs text-muted">
-                {roles.length} posisi: {roles.map((r) => r.position_name.replace(" Intern", "")).join(", ")}
+                {roles.length} posisi dibandingkan: {roles.map((r) => r.position_name.replace(" Intern", "")).join(", ")}
               </p>
             </button>
           );
@@ -79,7 +80,7 @@ export function Step1({
 
       <div className="mt-6 flex justify-end">
         <Button onClick={onNext}>
-          Lanjut ke nilai <ArrowRight size={16} />
+          Lanjut isi nilai <ArrowRight size={16} />
         </Button>
       </div>
     </section>
