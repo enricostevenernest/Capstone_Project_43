@@ -95,7 +95,7 @@ export default function HistoryPage() {
   } else if (!user) {
     content = (
       <EmptyState
-        title="Masuk dulu, ya"
+        title="Silakan Masuk Terlebih Dahulu"
         body="Riwayat disimpan per akun. Pakai akun yang sama dengan saat kamu menyimpan hasil penilaian."
         action={
           <Button onClick={() => setIsAuthOpen(true)}>
@@ -116,7 +116,7 @@ export default function HistoryPage() {
   } else if (history.length === 0) {
     content = (
       <EmptyState
-        title="Riwayatmu masih kosong"
+        title="Belum Ada Riwayat Tersimpan"
         body="Selesaikan penilaian sampai langkah terakhir, lalu tekan Simpan ke riwayat. Hasilnya muncul di sini dan bisa kamu buka kapan saja."
         action={
           <Link
@@ -171,6 +171,9 @@ export default function HistoryPage() {
                     {formatNumber(Number(topRec.match_percentage), 1)}%
                   </span>
                 )}
+                <span className="hidden text-xs font-semibold text-muted sm:inline">
+                  {isExpanded ? "Tutup Detail" : "Lihat Detail"}
+                </span>
                 <ChevronDown size={16} className={cn("text-muted transition", isExpanded && "rotate-180")} />
               </button>
 

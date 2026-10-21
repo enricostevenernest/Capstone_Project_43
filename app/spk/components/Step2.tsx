@@ -94,9 +94,9 @@ export function Step2({
           <ArrowLeft size={16} /> Ganti peminatan
         </Button>
         <div className="flex items-center gap-3">
-          {!canNext && <span className="text-xs text-muted">Masih ada nilai yang kosong.</span>}
+          {!canNext && <span className="text-xs text-warn">Lengkapi semua nilai.</span>}
           <Button onClick={onNext} disabled={!canNext}>
-            Lanjut ke portofolio <ArrowRight size={16} />
+            Ke tahap berikutnya <ArrowRight size={16} />
           </Button>
         </div>
       </div>

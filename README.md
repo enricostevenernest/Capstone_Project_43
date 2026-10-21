@@ -152,7 +152,8 @@ Tambahan dari `migration_002_admin.sql`:
      ON CONFLICT DO NOTHING;
      ```
 
-     Menu **Admin** akan muncul di navigasi setelah kamu masuk dengan akun tersebut.
+     Menu **Admin** akan muncul di navigasi setelah kamu masuk dengan akun tersebut. Panel admin bisa juga dibuka langsung di `/admin` (halaman masuk khusus admin).
+   - Jangan menyimpan password akun di repositori ini karena repositori bersifat publik. Simpan skrip pembuatan akun di file `*.local.sql`, yang sudah diabaikan git.
 
 4. **Konfigurasi Environment Variables:** salin `.env.example` menjadi `.env.local` lalu isi nilainya. File `.env.local` sudah masuk `.gitignore`, jangan di-commit.
 

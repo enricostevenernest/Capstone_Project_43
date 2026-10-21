@@ -153,7 +153,12 @@ export default function Home() {
 
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-xs text-muted sm:flex-row sm:justify-between sm:px-6">
-          <span>Capstone Project Kelompok 43 · Program Studi S1 Sistem Informasi · Telkom University Jakarta</span>
+          <span>
+            Capstone Project Kelompok 43 · Program Studi S1 Sistem Informasi · Telkom University Jakarta ·{" "}
+            <Link href="/admin" className="font-semibold hover:text-ink hover:underline">
+              Masuk sebagai admin
+            </Link>
+          </span>
           <span>Enrico Steven Ernest · Muhammad Abrar Rayhan · Linggar Adhi Wibowo · Refa Dias Adelia</span>
         </div>
       </footer>

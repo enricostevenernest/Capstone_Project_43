@@ -337,10 +337,10 @@ export function Step6({
           <ArrowLeft size={16} /> Lihat hitungannya
         </Button>
         <Button variant="outline" onClick={onRestart}>
-          <RotateCcw size={16} /> Mulai dari awal
+          <RotateCcw size={16} /> Ulangi dari Awal
         </Button>
         <Button variant="outline" onClick={() => window.print()}>
-          <Printer size={16} /> Cetak
+          <Printer size={16} /> Cetak Hasil
         </Button>
         {!savedId && (
           <Button onClick={handleSave} disabled={saving} className="sm:ml-auto">

@@ -80,7 +80,7 @@ export function Step1({
 
       <div className="mt-6 flex justify-end">
         <Button onClick={onNext}>
-          Lanjut isi nilai <ArrowRight size={16} />
+          Ke tahap berikutnya <ArrowRight size={16} />
         </Button>
       </div>
     </section>

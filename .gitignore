@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# file SQL lokal berisi password akun (jangan di-commit)
+*.local.sql

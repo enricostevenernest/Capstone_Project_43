@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       if ((it.essay || "").trim().length < 10) {
         emptyMap.set(it.categoryId, {
           score: 1,
-          reasoning: "Tidak mengisi portofolio di kompetensi ini, jadi skornya otomatis 1.",
+          reasoning: "Tidak mengisi portofolio pada kompetensi ini (Skor default: 1).",
         });
       }
     }

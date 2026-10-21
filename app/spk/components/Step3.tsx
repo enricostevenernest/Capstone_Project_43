@@ -104,7 +104,7 @@ export function Step3({
               </>
             ) : (
               <>
-                <Sparkles size={16} /> Nilai portofolioku
+                <Sparkles size={16} /> Submit
               </>
             )}
           </Button>

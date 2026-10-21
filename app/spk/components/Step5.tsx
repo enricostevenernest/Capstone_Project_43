@@ -141,7 +141,7 @@ export function Step5({
           <ArrowLeft size={16} /> Kembali ke profil
         </Button>
         <Button onClick={onNext}>
-          Lihat hasilnya <ArrowRight size={16} />
+          Lihat Ranking & Rekomendasi <ArrowRight size={16} />
         </Button>
       </div>
     </section>

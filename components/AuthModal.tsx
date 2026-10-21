@@ -7,7 +7,7 @@ import { LogIn, UserPlus, X, Loader2 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 /** Terjemahkan pesan error Supabase Auth yang paling sering muncul */
-function authErrorText(message: string) {
+export function authErrorText(message: string) {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials")) return "Email atau password-nya salah. Coba cek lagi.";
   if (m.includes("already registered") || m.includes("already been registered")) {
@@ -92,7 +92,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         if (data.user && data.session) {
           // Konfirmasi email nonaktif: pengguna langsung masuk
           const newUser = data.user;
-          setMessage({ type: "success", text: "Akunmu sudah jadi dan kamu langsung masuk." });
+          setMessage({ type: "success", text: "Akun berhasil dibuat!" });
           setTimeout(() => {
             onSuccess?.(newUser);
             onClose();
@@ -103,7 +103,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           setPassword("");
           setMessage({
             type: "success",
-            text: `Akunmu sudah jadi. Buka tautan verifikasi yang kami kirim ke ${email}, lalu masuk di sini.`,
+            text: `Akun berhasil dibuat! Buka tautan verifikasi yang dikirim ke ${email}, lalu masuk di sini.`,
           });
         }
       }
@@ -230,7 +230,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             }}
             className="text-xs font-semibold text-muted hover:text-ink"
           >
-            {isLogin ? "Belum punya akun? Daftar di sini" : "Sudah punya akun? Masuk saja"}
+            {isLogin ? "Belum punya akun? Daftar di sini" : "Sudah punya akun? Masuk di sini"}
           </button>
         </div>
       </div>

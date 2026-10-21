@@ -85,7 +85,7 @@ export function UserNav() {
           className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-xs font-semibold transition hover:bg-surface-2"
         >
           <LogIn size={14} />
-          <span className="hidden sm:inline">Masuk</span>
+          <span className="hidden sm:inline">Masuk / Akun</span>
         </button>
       )}
 
