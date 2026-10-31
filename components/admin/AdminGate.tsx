@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, LogIn, LogOut, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2, LogIn, LogOut, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/components/useAuth";
 import { authErrorText } from "@/components/AuthModal";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
+import { NetworkBackground } from "@/components/NetworkBackground";
+import { FloatingPaths } from "@/components/ui/floating-paths";
 import { AdminShell } from "./AdminShell";
 
 /** Halaman admin hanya terbuka untuk akun yang terdaftar di tabel admin_users */
@@ -16,16 +18,25 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
   if (!configured) {
     return (
       <AdminLoginLayout>
-        <p className="text-sm text-muted">Database belum tersambung. Isi variabel Supabase di .env.local dulu.</p>
+        <div className="space-y-3">
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-warn/25 bg-warn-soft text-warn">
+            <ShieldAlert size={22} />
+          </div>
+          <h2 className="font-display text-lg font-bold text-ink">Database Belum Tersambung</h2>
+          <p className="text-xs text-muted leading-relaxed text-justify">
+            Database belum tersambung. Harap isi variabel Supabase di{" "}
+            <code className="rounded bg-surface-2 px-1.5 py-0.5 text-ink">.env.local</code> terlebih dahulu.
+          </p>
+        </div>
       </AdminLoginLayout>
     );
   }
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-2 text-muted">
-        <Loader2 size={22} className="animate-spin" />
-        <p className="text-xs">Mengecek akses admin…</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-bg text-muted">
+        <Loader2 size={26} className="animate-spin text-brand" />
+        <p className="text-xs font-medium">Mengecek akses admin…</p>
       </div>
     );
   }
@@ -42,19 +53,24 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
     return (
       <AdminLoginLayout>
         <div className="space-y-4">
-          <ShieldAlert size={28} className="text-warn" />
-          <h2 className="font-display text-xl font-semibold">Akun ini bukan akun admin</h2>
-          <p className="text-sm text-muted">
-            Kamu masuk sebagai <b className="text-ink">{user.email}</b>, yang terdaftar sebagai mahasiswa. Keluar dulu, lalu
-            masuk dengan akun admin program studi.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => supabase.auth.signOut()}>
-              <LogOut size={16} /> Keluar
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-warn/25 bg-warn-soft text-warn shadow-inner">
+            <ShieldAlert size={22} />
+          </div>
+          <div>
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl">
+              Akun ini bukan akun admin
+            </h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted text-justify">
+              Kamu sedang masuk sebagai <b className="text-ink">{user.email}</b> (terdaftar sebagai mahasiswa). Silakan keluar dulu, lalu masuk dengan akun admin program studi.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button variant="outline" onClick={() => supabase.auth.signOut()} className="text-xs">
+              <LogOut size={14} /> Keluar
             </Button>
             <Link
               href="/"
-              className="inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-semibold text-muted hover:text-ink"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-3 text-xs font-semibold text-muted transition hover:bg-surface hover:text-ink"
             >
               Ke tampilan mahasiswa
             </Link>
@@ -70,32 +86,66 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 /** Halaman masuk khusus admin, dibedakan dari login mahasiswa (tanpa opsi daftar) */
 function AdminLoginLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1fr_1.1fr]">
-      <div className="relative hidden flex-col justify-between bg-ink p-10 text-bg lg:flex">
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand font-display text-sm font-bold text-on-brand">
-            43
-          </span>
-          <span className="font-display text-sm font-semibold">SPK Magang · Telkom University Jakarta</span>
-        </div>
-        <div>
-          <ShieldCheck size={36} className="text-brand" />
-          <h1 className="mt-4 font-display text-4xl font-bold leading-tight tracking-tight">Panel Admin Program Studi</h1>
-          <p className="mt-3 max-w-md text-sm leading-relaxed opacity-70">
-            Tempat memeriksa hasil rekomendasi mahasiswa, memvalidasi atau mengoreksi penilaian AI, dan mengelola data
-            lowongan beserta nilai targetnya.
-          </p>
-        </div>
-        <p className="text-xs opacity-50">Akun admin dibuat oleh pengelola sistem, tidak lewat pendaftaran.</p>
-      </div>
-      <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
-        <div className="mx-auto w-full max-w-sm">
-          <Link href="/" className="mb-10 inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink">
+    <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-bg">
+      {/* Background interaktif konstelasi */}
+      <NetworkBackground />
+
+      {/* Top Navbar */}
+      <header className="relative z-10 w-full border-b border-line/60 bg-bg/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl xl:max-w-[1380px] items-center justify-between px-4 py-3 sm:px-6">
+          <Link href="/" className="group flex items-center gap-2.5">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand font-display text-xs font-bold text-on-brand shadow-sm">
+              43
+            </span>
+            <div className="leading-tight">
+              <span className="font-display text-sm font-semibold text-ink group-hover:text-brand transition">
+                SPK Magang
+              </span>
+              <span className="hidden text-xs text-muted sm:inline"> · Telkom University Jakarta</span>
+            </div>
+          </Link>
+
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/70 px-3 py-1.5 text-xs font-semibold text-muted backdrop-blur transition hover:border-line-strong hover:bg-surface hover:text-ink"
+          >
             <ArrowLeft size={14} /> Kembali ke tampilan mahasiswa
           </Link>
-          {children}
         </div>
-      </div>
+      </header>
+
+      {/* Center Card */}
+      <main className="relative z-10 flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div className="animate-rise w-full max-w-3xl overflow-hidden rounded-2xl border border-line bg-surface/90 shadow-2xl backdrop-blur-xl grid md:grid-cols-5">
+          {/* Sisi Kiri: Visual & Branding */}
+          <div className="relative flex flex-col justify-between overflow-hidden border-b border-line bg-surface-2/40 p-6 sm:p-8 md:col-span-2 md:border-b-0 md:border-r">
+            <FloatingPaths position={-1} />
+
+            <div className="relative z-10">
+              <h1 className="font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
+                Admin Program Studi
+              </h1>
+              <p className="mt-3 text-xs leading-relaxed text-muted text-justify">
+                Tempat memeriksa hasil rekomendasi mahasiswa, memvalidasi atau mengoreksi penilaian AI, serta mengelola data lowongan beserta nilai targetnya.
+              </p>
+            </div>
+
+            <div className="relative z-10 mt-6 rounded-lg border border-line/60 bg-surface/50 p-2.5 text-[11px] leading-relaxed text-muted text-justify">
+              <span className="font-medium text-ink">Akses Terbatas:</span> Hanya akun yang terdaftar di sistem yang dapat mengakses panel ini.
+            </div>
+          </div>
+
+          {/* Sisi Kanan: Form Login atau Pesan Status */}
+          <div className="relative z-10 flex flex-col justify-center p-6 sm:p-8 md:col-span-3">
+            {children}
+          </div>
+        </div>
+      </main>
+
+      {/* Minimal Footer */}
+      <footer className="relative z-10 py-3 text-center text-xs text-muted/60">
+        Sistem Pendukung Keputusan Magang · Telkom University Jakarta
+      </footer>
     </div>
   );
 }
@@ -118,19 +168,30 @@ function AdminLoginForm() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand lg:hidden">Panel Admin</p>
-        <h2 className="mt-1 font-display text-2xl font-bold tracking-tight">Masuk sebagai admin</h2>
-        <p className="mt-1 text-sm text-muted">Gunakan akun admin yang diberikan pengelola sistem.</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-brand">Otentikasi Pengelola</p>
+        <h2 className="mt-1 font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">Masuk sebagai admin</h2>
+        <p className="mt-1 text-xs text-muted text-justify">Gunakan akun admin yang diberikan pengelola sistem.</p>
       </div>
+
       {error && (
-        <p role="alert" className="rounded-lg border border-brand/30 bg-brand-soft p-3 text-sm text-brand">
+        <div role="alert" className="rounded-lg border border-brand/30 bg-brand-soft p-3 text-xs text-brand leading-relaxed text-justify">
           {error}
-        </p>
+        </div>
       )}
+
       <div className="space-y-1.5">
         <Label htmlFor="admin-email">Email admin</Label>
-        <Input id="admin-email" type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input
+          id="admin-email"
+          type="email"
+          required
+          autoComplete="username"
+          placeholder="admin@spk.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="admin-password">Password</Label>
         <Input
@@ -139,12 +200,22 @@ function AdminLoginForm() {
           required
           minLength={6}
           autoComplete="current-password"
+          placeholder="Minimal 6 karakter"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />} Masuk ke panel admin
+
+      <Button type="submit" disabled={loading} className="mt-2 w-full">
+        {loading ? (
+          <>
+            <Loader2 size={16} className="animate-spin" /> Memverifikasi…
+          </>
+        ) : (
+          <>
+            <LogIn size={16} /> Masuk ke panel admin
+          </>
+        )}
       </Button>
     </form>
   );
