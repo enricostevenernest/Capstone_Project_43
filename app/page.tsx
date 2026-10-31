@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SpecOverview } from "@/components/SpecOverview";
+import { NetworkBackground } from "@/components/NetworkBackground";
 
 const STEPS = [
   { title: "Pilih peminatan", body: "SAGE atau DELTA. Dari sini sistem tahu kompetensi dan posisi mana yang relevan buatmu." },
@@ -25,10 +26,11 @@ const GAP_TABLE: [string, string][] = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      <NetworkBackground />
       <SiteHeader />
 
-      <main>
+      <main className="relative z-10">
         {/* Hero */}
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
           <div className="animate-rise">
