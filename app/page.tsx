@@ -88,7 +88,7 @@ export default function Home() {
         {/* Alur */}
         <section className="border-y border-line bg-surface">
           <div className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 py-14 sm:px-6">
-            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">Enam langkah, kira-kira 10 menit</h2>
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">Enam langkah, Hanya 10 menit pengerjaan</h2>
             <ol className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
               {STEPS.map((s, i) => (
                 <li key={s.title} className="flex gap-4">
@@ -106,7 +106,7 @@ export default function Home() {
         {/* Peminatan */}
         <section className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 py-14 sm:px-6">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">Apa saja yang dibandingkan?</h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted">
+          <p className="mt-2 max-w-2xl text-justify text-sm text-muted">
             Target tiap posisi kami susun dari literatur dan lowongan yang dipublikasikan. Setiap posisi punya kompetensi
             utama (core factor) dan pendukung (secondary factor), dan admin prodi bisa memperbaruinya kapan saja.
           </p>
@@ -135,7 +135,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-muted">
+              <p className="mt-3 text-justify text-xs leading-relaxed text-muted">
                 Kurang satu tingkat dinilai lebih berat daripada lebih satu tingkat, karena kekurangan kompetensi lebih
                 berisiko saat magang dibanding kelebihan.
               </p>
