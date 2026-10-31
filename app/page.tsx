@@ -32,7 +32,7 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* Hero */}
-        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
+        <section className="mx-auto grid max-w-7xl xl:max-w-[1380px] items-center gap-12 lg:gap-16 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:pt-20">
           <div className="animate-rise">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
               YOUR CAREER STARTS HERE
@@ -40,10 +40,10 @@ export default function Home() {
             <h1 className="mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
               Temukan potensi diri mu agar kamu dapat menemukan posisi yang sesuai.
             </h1>
-            <p className="mt-5 max-w-xl text-justify text-base leading-relaxed text-muted">
+            <p className="mt-5 max-w-2xl text-justify text-base leading-relaxed text-muted">
               Kenali potensimu. Analisis kompetensimu. Temukan posisi magang yang paling sesuai dengan kemampuanmu.
             </p>
-            <div className="mt-8 max-w-xl">
+            <div className="mt-8 max-w-2xl">
               <Link
                 href="/spk"
                 className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:text-base"
@@ -87,7 +87,7 @@ export default function Home() {
 
         {/* Alur */}
         <section className="border-y border-line bg-surface">
-          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <div className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 py-14 sm:px-6">
             <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">Enam langkah, kira-kira 10 menit</h2>
             <ol className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
               {STEPS.map((s, i) => (
@@ -104,7 +104,7 @@ export default function Home() {
         </section>
 
         {/* Peminatan */}
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+        <section className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 py-14 sm:px-6">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">Apa saja yang dibandingkan?</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted">
             Target tiap posisi kami susun dari literatur dan lowongan yang dipublikasikan. Setiap posisi punya kompetensi
@@ -114,7 +114,7 @@ export default function Home() {
         </section>
 
         {/* Metode */}
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+        <section className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 pb-16 sm:px-6">
           <div className="grid gap-8 rounded-2xl border border-line bg-surface p-6 sm:p-8 lg:grid-cols-[1fr_1.1fr]">
             <div>
               <h2 className="font-display text-2xl font-bold tracking-tight">Hitungannya terbuka</h2>
@@ -145,7 +145,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-xs text-muted sm:flex-row sm:justify-between sm:px-6">
+        <div className="mx-auto flex max-w-7xl xl:max-w-[1380px] flex-col gap-2 px-4 py-8 text-xs text-muted sm:flex-row sm:justify-between sm:px-6">
           <span>
             Capstone Project Kelompok 43 · Program Studi S1 Sistem Informasi · Telkom University Jakarta ·{" "}
             <Link href="/admin" className="font-semibold hover:text-ink hover:underline">

@@ -17,7 +17,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const nav = isAdmin ? [...NAV, { href: "/admin", label: "Admin" }] : NAV;
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/85 backdrop-blur print:hidden">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl xl:max-w-[1380px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand font-display text-sm font-bold text-on-brand">
             43
