@@ -39,7 +39,7 @@ export function Step3({
     <section className="grid gap-8 lg:grid-cols-[1fr_280px]">
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">Ceritakan apa yang pernah kamu kerjakan</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
+        <p className="mt-2 max-w-2xl text-justify text-sm text-muted">
           Satu cerita terbaik per kategori sudah cukup. Sebutkan apa yang kamu buat, peranmu di situ, alat yang dipakai,
           dan hasilnya. Belum punya pengalaman di suatu kategori? Kosongkan saja, nanti otomatis dapat skor 1.
         </p>
@@ -120,11 +120,11 @@ export function Step3({
                 <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-surface-2 font-mono text-xs font-semibold">
                   {r.score}
                 </span>
-                <span className="text-muted">{r.text}</span>
+                <span className="text-justify text-muted">{r.text}</span>
               </li>
             ))}
           </ol>
-          <p className="mt-4 border-t border-line pt-3 text-xs text-muted">
+          <p className="mt-4 border-t border-line pt-3 text-justify text-xs text-muted">
             Rubrik diadaptasi dari Paulson dkk. (1991). Kamu sudah mengisi {filled} dari {categories.length} kategori.
           </p>
         </div>
