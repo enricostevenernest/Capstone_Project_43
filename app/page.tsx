@@ -36,15 +36,15 @@ export default function Home() {
               YOUR CAREER STARTS HERE
             </p>
             <h1 className="mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-              Temukan tempat magang yang tepat.
+              Temukan potensi diri mu agar kamu dapat menemukan posisi yang sesuai.
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
-              Kenali potensimu. Analisis kompetensimu. Temukan posisi yang paling sesuai.
+            <p className="mt-5 max-w-xl text-justify text-base leading-relaxed text-muted">
+              Kenali potensimu. Analisis kompetensimu. Temukan posisi magang yang paling sesuai dengan kemampuanmu.
             </p>
-            <div className="mt-8">
+            <div className="mt-8 max-w-xl">
               <Link
                 href="/spk"
-                className="inline-flex h-12 w-full max-w-md items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:text-base"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:text-base"
               >
                 Mulai analisis &rarr;
               </Link>
