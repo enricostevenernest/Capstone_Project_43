@@ -93,7 +93,7 @@ export function InternshipManager() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Lowongan & nilai target</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
+          <p className="mt-1 max-w-2xl text-justify text-sm text-muted">
             Setiap posisi butuh target 1 sampai 4 untuk keenam kompetensi. Tandai yang paling penting sebagai utama (core
             factor), sisanya pendukung. Perubahan langsung dipakai di perhitungan mahasiswa berikutnya.
           </p>

@@ -78,7 +78,7 @@ export function AdminDashboard() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Periksa hasil rekomendasi</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
+          <p className="mt-1 max-w-2xl text-justify text-sm text-muted">
             Cocokkan skor AI dengan cerita dan bukti portofolio mahasiswa. Kalau ada yang meleset, koreksi skornya atau
             ganti rekomendasi akhirnya, dan tulis alasannya supaya mahasiswa paham.
           </p>
