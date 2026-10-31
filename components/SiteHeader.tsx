@@ -24,7 +24,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </span>
           <span className="hidden leading-tight sm:block">
             <span className="block font-display text-sm font-semibold">SPK Magang</span>
-            <span className="block text-[11px] text-muted">Telkom University Jakarta</span>
+            <span className="block text-[10px] font-medium uppercase tracking-wider text-muted">TELKOM UNIVERSITY</span>
           </span>
         </Link>
         <nav className="flex min-w-0 items-center gap-0.5 sm:gap-1">
@@ -38,7 +38,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                 className={cn(
                   "rounded-lg px-2 py-1.5 text-xs font-semibold transition sm:px-3 sm:text-sm",
                   item.href === "/" && "hidden sm:inline-flex",
-                  active ? "bg-surface-2 text-ink" : "text-muted hover:text-ink",
+                  active ? "text-brand" : "text-muted hover:text-ink",
                 )}
               >
                 {item.label}

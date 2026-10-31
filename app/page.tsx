@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, History } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { GapRuler } from "@/components/GapRuler";
 import { SpecOverview } from "@/components/SpecOverview";
 
 const STEPS = [
@@ -35,60 +33,53 @@ export default function Home() {
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-20">
           <div className="animate-rise">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-              KPPM · S1 Sistem Informasi · Telkom University Jakarta
+              YOUR CAREER STARTS HERE
             </p>
-            <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Cari tempat magang yang benar-benar pas dengan kemampuanmu.
+            <h1 className="mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+              Temukan tempat magang yang tepat.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
-              Bukan cuma karena namanya terkenal atau diajak teman. Isi nilai mata kuliah dan ceritakan proyek yang pernah
-              kamu kerjakan. Sistem membandingkannya dengan kebutuhan tiap posisi magang dan menunjukkan mana yang paling
-              cocok, beserta alasannya.
+              Kenali potensimu. Analisis kompetensimu. Temukan posisi yang paling sesuai.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8">
               <Link
                 href="/spk"
-                className="inline-flex h-12 items-center gap-2 rounded-lg bg-brand px-6 text-sm font-semibold text-on-brand shadow-sm transition hover:brightness-110"
+                className="inline-flex h-12 w-full max-w-md items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 sm:text-base"
               >
-                Cek kecocokanku <ArrowRight size={16} />
-              </Link>
-              <Link
-                href="/history"
-                className="inline-flex h-12 items-center gap-2 rounded-lg border border-line bg-surface px-6 text-sm font-semibold transition hover:bg-surface-2"
-              >
-                <History size={16} /> Riwayatku
+                Mulai analisis &rarr;
               </Link>
             </div>
           </div>
 
-          {/* Contoh perhitungan */}
-          <div className="animate-rise rounded-2xl border border-line bg-surface p-6 shadow-sm [animation-delay:120ms]">
-            <div className="flex items-baseline justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Contoh perhitungan GAP</p>
-              <span className="font-mono text-[11px] text-muted">DELTA</span>
-            </div>
-            <p className="mt-3 font-display text-lg font-semibold">Penambangan Data → Data Scientist Intern</p>
-            <p className="text-xs text-muted">Target kebutuhan posisi: 4 (core factor)</p>
-            <GapRuler className="mt-6" target={4} lanes={[{ label: "Akademik", value: 3.5 }, { label: "Portofolio", value: 3 }]} />
-            <div className="mt-2 grid grid-cols-3 gap-2 border-t border-line pt-4 font-mono text-xs">
-              <div>
-                <div className="text-muted">GAP portofolio</div>
-                <div className="mt-1 text-sm font-semibold">3 − 4 = −1</div>
-              </div>
-              <div>
-                <div className="text-muted">Bobot nilai</div>
-                <div className="mt-1 text-sm font-semibold">4,0</div>
-              </div>
-              <div>
-                <div className="text-muted">Maksimum</div>
-                <div className="mt-1 text-sm font-semibold">5,0</div>
-              </div>
-            </div>
-            <p className="mt-4 text-xs leading-relaxed text-muted">
-              <span className="font-semibold text-brand">Merah</span> berarti kompetensi di bawah target,{" "}
-              <span className="font-semibold text-data">biru</span> di atas target,{" "}
-              <span className="font-semibold text-ok">hijau</span> tepat sesuai.
+          {/* Contoh rekomendasi */}
+          <div className="animate-rise rounded-2xl border border-line bg-surface p-6 shadow-sm [animation-delay:120ms] sm:p-7">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+              CONTOH REKOMENDASI
             </p>
+            <h3 className="mt-3 font-display text-xl font-bold text-ink sm:text-2xl">
+              Data Scientist Intern
+            </h3>
+            <div className="mt-4">
+              <div className="font-display text-4xl font-bold text-ok sm:text-5xl">
+                92%
+              </div>
+              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface-2">
+                <div
+                  className="h-full rounded-full bg-ok transition-all"
+                  style={{ width: "92%" }}
+                />
+              </div>
+            </div>
+            <div className="mt-6 space-y-3.5 border-t border-line pt-5 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted">Akademik</span>
+                <span className="font-semibold text-ink">4,5/5</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted">Portofolio</span>
+                <span className="font-semibold text-ink">4,0/5</span>
+              </div>
+            </div>
           </div>
         </section>
 
