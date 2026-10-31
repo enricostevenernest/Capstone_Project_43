@@ -200,8 +200,8 @@ export function Wizard() {
     <>
       {/* Stepper */}
       <div className="border-b border-line bg-surface print:hidden">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <ol className="flex items-center gap-1 overflow-x-auto py-3">
+        <div className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 sm:px-6">
+          <ol className="mx-auto flex w-fit max-w-full items-center justify-center gap-1 overflow-x-auto py-3">
             {STEPS.map((s, i) => {
               const active = step === s.n;
               const done = maxStep > s.n && !active;
@@ -237,7 +237,7 @@ export function Wizard() {
         </div>
       </div>
 
-      <main key={step} className="animate-rise mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
+      <main key={step} className="animate-rise mx-auto max-w-7xl xl:max-w-[1380px] space-y-6 px-4 py-8 sm:px-6">
         {showRestored && step <= 3 && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm print:hidden">
             <span>Isian terakhirmu masih tersimpan di browser ini, jadi kamu bisa lanjut dari situ.</span>
@@ -303,7 +303,7 @@ export function Wizard() {
         )}
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-muted sm:px-6 print:hidden">
+      <footer className="mx-auto max-w-7xl xl:max-w-[1380px] px-4 py-8 text-center text-xs text-muted sm:px-6 print:hidden">
         Dihitung dengan Profile Matching (Kusrini, 2007), portofolio dinilai Gemini 3.8 Flash · Kelompok 43, Telkom
         University Jakarta
       </footer>

@@ -11,6 +11,7 @@ import {
   effectivePortfolioScore,
 } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
+import { NetworkBackground } from "@/components/NetworkBackground";
 import { AuthModal } from "@/components/AuthModal";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -275,9 +276,10 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      <NetworkBackground />
       <SiteHeader />
-      <main className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
+      <main className="relative z-10 mx-auto max-w-7xl xl:max-w-[1380px] space-y-6 px-4 py-10 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-bold tracking-tight">Riwayat rekomendasi</h1>

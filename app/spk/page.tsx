@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { NetworkBackground } from "@/components/NetworkBackground";
 
 // Wizard hanya dirender di browser karena membaca draf dari localStorage saat pertama dimuat
 const Wizard = dynamic(() => import("./Wizard").then((m) => m.Wizard), {
@@ -16,9 +17,12 @@ const Wizard = dynamic(() => import("./Wizard").then((m) => m.Wizard), {
 
 export default function SPKPage() {
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      <NetworkBackground />
       <SiteHeader />
-      <Wizard />
+      <div className="relative z-10">
+        <Wizard />
+      </div>
     </div>
   );
 }
