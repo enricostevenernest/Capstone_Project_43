@@ -29,7 +29,7 @@ const STEPS: { n: Step; label: string }[] = [
 const specIdOf = (code: SpecializationCode) => (code === "SAGE" ? "spec_sage" : "spec_delta");
 
 export default function SPKPage() {
-  const [spec, setSpec] = useState<SpecializationCode>("SAGE");
+  const [spec, setSpec] = useState<SpecializationCode | null>(null);
   const [step, setStep] = useState<Step>(1);
   const [maxStep, setMaxStep] = useState<Step>(1);
   const [grades, setGrades] = useState<Record<string, GradeLetter>>({});
@@ -42,7 +42,7 @@ export default function SPKPage() {
   const [evalError, setEvalError] = useState<string | null>(null);
 
   const categories = useMemo(
-    () => competencyCategories.filter((c) => c.specialization_id === specIdOf(spec)),
+    () => (spec ? competencyCategories.filter((c) => c.specialization_id === specIdOf(spec)) : []),
     [spec],
   );
   const coursesForSpec = useMemo(
@@ -50,7 +50,7 @@ export default function SPKPage() {
     [categories],
   );
   const internshipsForSpec = useMemo(
-    () => internships.filter((i) => i.specialization_id === specIdOf(spec)),
+    () => (spec ? internships.filter((i) => i.specialization_id === specIdOf(spec)) : []),
     [spec],
   );
 
@@ -77,6 +77,7 @@ export default function SPKPage() {
   }
 
   function canOpen(n: Step) {
+    if (n === 2) return spec !== null;
     if (n > maxStep) return false;
     if (n >= 3 && !gradesComplete) return false;
     return true;
@@ -90,7 +91,7 @@ export default function SPKPage() {
     setMaxStep((m) => (m > 3 ? 3 : m));
   }
 
-  function changeSpec(next: SpecializationCode) {
+  function changeSpec(next: SpecializationCode | null) {
     if (next === spec) return;
     setSpec(next);
     invalidateEvaluation();
@@ -257,7 +258,7 @@ export default function SPKPage() {
             categories={categories}
             academicScores={academicScores}
             portfolioScores={portfolioScores}
-            spec={spec}
+            spec={spec ?? "SAGE"}
             essays={essays}
             evidences={evidences}
             reasonings={reasonings}
